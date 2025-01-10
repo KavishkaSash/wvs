@@ -124,7 +124,10 @@ const WeightVerification: React.FC = () => {
   };
 
   const handlePrint = () => {
-    const printWindow = window.open("", "_blank");
+    const printContent = document.querySelector(".print-content");
+    if (!printContent) return;
+
+    const printWindow = window.open("", "", "width=600,height=800");
     if (!printWindow) return;
 
     const printData: PrintData = {
@@ -134,7 +137,6 @@ const WeightVerification: React.FC = () => {
       verificationSymbol: status === "acceptable" ? "✓" : "✗",
     };
 
-    // Create print window content
     printWindow.document.write(`
       <html>
         <head>
@@ -142,36 +144,33 @@ const WeightVerification: React.FC = () => {
           <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
           <style>
             @media print {
-              body { margin: 0; padding: 0; }
-              .print-content { page-break-inside: avoid; }
+              body { margin: 0; padding: 20px; }
+              .print-content { 
+                page-break-inside: avoid;
+                margin: auto;
+              }
             }
           </style>
         </head>
         <body>
-          <div id="print-root"></div>
+          ${printContent.outerHTML}
         </body>
       </html>
     `);
 
-    // Render the preview component in print window
-    const printRoot = printWindow.document.getElementById("print-root");
-    if (printRoot) {
-      const printPreview = <PrintPreview data={printData} />;
-      // Note: In a real implementation, you'd use ReactDOM.render or createRoot
-      // This is simplified for demonstration
-    }
-
-    // Print and close
     printWindow.document.close();
-    printWindow.print();
-    printWindow.close();
+
+    // Wait for styles to load
+    setTimeout(() => {
+      printWindow.print();
+      printWindow.close();
+    }, 500);
   };
 
   const isFormValid = () => {
     return (
       formData.productName &&
       formData.innerCount &&
-      formData.netWeight &&
       formData.grossWeight &&
       formData.masterCartons &&
       formData.serialNumber &&
@@ -236,7 +235,7 @@ const WeightVerification: React.FC = () => {
             <Card>
               <CardContent className="pt-6">
                 <h2 className="text-xl font-bold mb-4">Product Details</h2>
-                <div className="space-y-4">
+                <div className="space-y-4 mb-20">
                   <div>
                     <label className="block text-sm font-medium mb-2">
                       Product Name
@@ -263,20 +262,7 @@ const WeightVerification: React.FC = () => {
                       placeholder="Enter inner count"
                     />
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-2">
-                      Net Weight (kg)
-                    </label>
-                    <input
-                      type="number"
-                      step="0.001"
-                      name="netWeight"
-                      className="w-full p-2 border rounded"
-                      value={formData.netWeight}
-                      onChange={handleInputChange}
-                      placeholder="Enter net weight"
-                    />
-                  </div>
+
                   <div>
                     <label className="block text-sm font-medium mb-2">
                       Gross Weight (kg)
@@ -317,7 +303,6 @@ const WeightVerification: React.FC = () => {
                       placeholder="Enter serial number"
                     />
                   </div>
-                  {/* Add other form inputs similarly */}
                 </div>
               </CardContent>
             </Card>
@@ -325,7 +310,7 @@ const WeightVerification: React.FC = () => {
 
           {/* Right side - Print Preview */}
           <div>
-            <Card>
+            <Card className="sticky top-4">
               <CardContent className="pt-6">
                 <h2 className="text-xl font-bold mb-4">Print Preview</h2>
                 <PrintPreview
@@ -336,28 +321,26 @@ const WeightVerification: React.FC = () => {
                     verificationSymbol: status === "acceptable" ? "✓" : "✗",
                   }}
                 />
+                <div className="mt-4">
+                  <button
+                    onClick={handlePrint}
+                    disabled={!isFormValid()}
+                    className={`w-full flex items-center justify-center gap-2 px-4 py-3 rounded text-white ${
+                      isFormValid()
+                        ? "bg-green-500 hover:bg-green-600"
+                        : "bg-gray-400 cursor-not-allowed"
+                    }`}
+                  >
+                    <Printer className="w-5 h-5" />
+                    Print Sticker
+                  </button>
+                </div>
               </CardContent>
             </Card>
           </div>
         </div>
 
         {/* Print Button */}
-        <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t">
-          <div className="max-w-7xl mx-auto">
-            <button
-              onClick={handlePrint}
-              disabled={!isFormValid()}
-              className={`w-full flex items-center justify-center gap-2 px-4 py-3 rounded text-white ${
-                isFormValid()
-                  ? "bg-green-500 hover:bg-green-600"
-                  : "bg-gray-400 cursor-not-allowed"
-              }`}
-            >
-              <Printer className="w-5 h-5" />
-              Print Sticker
-            </button>
-          </div>
-        </div>
       </div>
     </div>
   );

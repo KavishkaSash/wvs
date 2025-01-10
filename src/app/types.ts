@@ -1,5 +1,6 @@
 // types.ts
 export interface Quotation {
+  [x: string]: string;
   id: number;
   title: string;
   body: string;

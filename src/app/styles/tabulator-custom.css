@@ -1,0 +1,40 @@
+/* styles/tabulator-custom.css */
+.custom-tabulator {
+  @apply rounded-lg border border-gray-200;
+}
+
+.custom-tabulator .tabulator-header {
+  @apply bg-gray-100 border-b border-gray-200;
+}
+
+.custom-tabulator .tabulator-header .tabulator-col {
+  @apply bg-transparent border-r border-gray-200;
+}
+
+.custom-tabulator .tabulator-header .tabulator-col-content {
+  @apply px-4 py-2 font-semibold;
+}
+
+.custom-tabulator .tabulator-row {
+  @apply border-b border-gray-200;
+}
+
+.custom-tabulator .tabulator-row .tabulator-cell {
+  @apply px-4 py-2;
+}
+
+.custom-tabulator .tabulator-footer {
+  @apply bg-gray-50 border-t border-gray-200;
+}
+
+.custom-tabulator .tabulator-paginator {
+  @apply p-2;
+}
+
+.custom-tabulator .tabulator-page {
+  @apply px-3 py-1 mx-1 rounded border border-gray-300 hover:bg-gray-100;
+}
+
+.custom-tabulator .tabulator-page.active {
+  @apply bg-blue-500 text-white border-blue-500;
+}

@@ -1,154 +1,166 @@
 "use client";
-import { useState, useEffect } from "react";
-import axios from "axios";
+
+import { useState, useEffect, useMemo } from "react";
+import { fetchQuotations, fetchCategories } from "../api/quotation";
+import { Quotation, Category } from "../types";
+
+import dynamic from "next/dynamic";
+import "react-tabulator/lib/css/tabulator.min.css";
+import { ReactTabulator, ColumnDefinition } from "react-tabulator";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 
 const QuotationSearch = () => {
   const [searchQuery, setSearchQuery] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(10); // Number of items per page
-  const [quotations, setQuotations] = useState<any[]>([]); // Update to store fetched posts
-  const [loading, setLoading] = useState(true);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<string>("");
+  const [quotations, setQuotations] = useState<Quotation[]>([]);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Fetch data from JSONPlaceholder API (example API)
-  const fetchQuotations = async () => {
-    try {
-      const response = await axios.get(
-        "https://jsonplaceholder.typicode.com/posts"
-      );
-      setQuotations(response.data); // Set the fetched data into quotations
-      setLoading(false);
-    } catch (err) {
-      setError("Failed to fetch quotations");
-      setLoading(false);
-    }
+  // Table columns configuration
+  const columns: ColumnDefinition[] = [
+    { title: "ID", field: "id", width: 70, sorter: "number" as const },
+    { title: "Title", field: "title", width: 200, sorter: "string" as const },
+    { title: "Body", field: "body", width: 400, sorter: "string" as const },
+    {
+      title: "Category",
+      field: "category",
+      width: 150,
+      formatter: (cell: any) => {
+        const category = categories.find((c) => c.name === cell.getValue());
+        return `<span style="background-color: ${
+          category?.color
+        }; padding: 2px 8px; border-radius: 12px;">${cell.getValue()}</span>`;
+      },
+    },
+    { title: "Author", field: "author", width: 150, sorter: "string" as const },
+    {
+      title: "Date",
+      field: "date",
+      width: 150,
+      sorter: "datetime" as const,
+      formatter: function (cell: any) {
+        return cell.getValue();
+      },
+      formatterParams: {
+        inputFormat: "iso",
+        outputFormat: "DD/MM/YYYY",
+      },
+    },
+  ];
+
+  // Table options
+  const options = {
+    layout: "fitColumns",
+    responsiveLayout: "hide",
+    pagination: "local",
+    paginationSize: 10,
+    movableColumns: true,
+    placeholder: "No Data Available",
   };
 
   useEffect(() => {
-    fetchQuotations();
-  }, []); // Fetch data once when component mounts
+    const loadData = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const [quotationsData, categoriesData] = await Promise.all([
+          fetchQuotations(),
+          fetchCategories(),
+        ]);
+        setQuotations(quotationsData);
+        setCategories(categoriesData);
+      } catch (err: any) {
+        setError(err.message || "Failed to fetch data");
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  // Filter quotations based on search query
-  const filteredQuotations = quotations.filter((quote) =>
-    quote.title.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+    loadData();
+  }, []);
 
-  // Pagination logic
-  const totalPages = Math.ceil(filteredQuotations.length / itemsPerPage);
-  const paginatedQuotations = filteredQuotations.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
-
-  const handlePageChange = (page: number) => {
-    if (page >= 1 && page <= totalPages) {
-      setCurrentPage(page);
-    }
-  };
-
-  // Placeholder row completeness check for your original logic
-  const isRowComplete = (quote: any) => quote.title && quote.body; // Checking title and body for completeness
+  // Filter quotations based on search query and selected category
+  const filteredData = useMemo(() => {
+    return quotations.filter((quote) => {
+      const matchesSearch =
+        quote.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        quote.body.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        quote.author.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesCategory =
+        !selectedCategory || quote.category === selectedCategory;
+      return matchesSearch && matchesCategory;
+    });
+  }, [quotations, searchQuery, selectedCategory]);
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-6">Quotation Search</h1>
+    <Card className="p-6">
+      <div className="space-y-6">
+        <h1 className="text-2xl font-bold">Quotation Search</h1>
 
-      {/* Search Input */}
-      <div className="mb-6">
-        <input
-          type="text"
-          placeholder="Search by title..."
-          className="w-full p-2 border rounded"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-        />
-      </div>
+        <div className="flex flex-col gap-4 md:flex-row md:items-center">
+          <div className="flex-1">
+            <input
+              type="text"
+              placeholder="Search quotations..."
+              className="w-full p-2 border rounded"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
 
-      {/* Loading and Error Handling */}
-      {loading && <p>Loading...</p>}
-      {error && <p className="text-red-500">{error}</p>}
-
-      {/* Quotations Table */}
-      {!loading && !error && (
-        <div className="overflow-x-auto">
-          <table className="min-w-full bg-white border">
-            <thead>
-              <tr className="bg-gray-100">
-                <th className="px-6 py-3 border">Title</th>
-                <th className="px-6 py-3 border">Body</th>
-                <th className="px-6 py-3 border">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {paginatedQuotations.map((quote) => (
-                <tr
-                  key={quote.id}
-                  className={isRowComplete(quote) ? "" : "bg-red-100"}
-                >
-                  <td className="px-6 py-4 border">{quote.title || "N/A"}</td>
-                  <td className="px-6 py-4 border">{quote.body || "N/A"}</td>
-                  <td className="px-6 py-4 border">
-                    {isRowComplete(quote) && (
-                      <button
-                        onClick={() => (window.location.href = "/weight")}
-                        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded flex items-center gap-2"
-                      >
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="h-5 w-5"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3"
-                          />
-                        </svg>
-                        Weight
-                      </button>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <div className="flex flex-wrap gap-2">
+            <Badge
+              className={`cursor-pointer ${
+                !selectedCategory ? "bg-blue-500" : "bg-gray-300"
+              }`}
+              onClick={() => setSelectedCategory("")}
+            >
+              All
+            </Badge>
+            {categories.map((category) => (
+              <Badge
+                key={category.id}
+                className={`cursor-pointer ${
+                  selectedCategory === category.name
+                    ? "bg-blue-500"
+                    : "bg-gray-300"
+                }`}
+                style={{
+                  backgroundColor:
+                    selectedCategory === category.name
+                      ? category.color
+                      : undefined,
+                }}
+                onClick={() => setSelectedCategory(category.name)}
+              >
+                {category.name}
+              </Badge>
+            ))}
+          </div>
         </div>
-      )}
 
-      {/* Pagination Controls */}
-      <div className="mt-4 flex justify-center gap-2">
-        <button
-          onClick={() => handlePageChange(currentPage - 1)}
-          disabled={currentPage === 1}
-          className="px-4 py-2 bg-gray-300 hover:bg-gray-400 rounded disabled:bg-gray-200"
-        >
-          Previous
-        </button>
-        {[...Array(totalPages).keys()].map((page) => (
-          <button
-            key={page + 1}
-            onClick={() => handlePageChange(page + 1)}
-            className={`px-4 py-2 rounded ${
-              currentPage === page + 1
-                ? "bg-blue-500 text-white"
-                : "bg-gray-300 hover:bg-gray-400"
-            }`}
-          >
-            {page + 1}
-          </button>
-        ))}
-        <button
-          onClick={() => handlePageChange(currentPage + 1)}
-          disabled={currentPage === totalPages}
-          className="px-4 py-2 bg-gray-300 hover:bg-gray-400 rounded disabled:bg-gray-200"
-        >
-          Next
-        </button>
+        {loading && (
+          <div className="flex justify-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+          </div>
+        )}
+
+        {error && <div className="text-red-500 text-center">{error}</div>}
+
+        {!loading && !error && (
+          <div className="mt-4">
+            <ReactTabulator
+              data={filteredData}
+              columns={columns}
+              options={options}
+              className="custom-tabulator"
+            />
+          </div>
+        )}
       </div>
-    </div>
+    </Card>
   );
 };
 

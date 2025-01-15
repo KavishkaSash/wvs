@@ -88,7 +88,6 @@ const Page = () => {
               </div>
             </div>
           </div>
-          <WeightDisplay />
         </CardContent>
       </Card>
     </div>

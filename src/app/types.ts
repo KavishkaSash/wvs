@@ -1,7 +1,6 @@
 // types.ts
 export interface Quotation {
   [x: string]: string;
-  id: number;
   title: string;
   body: string;
   category: string;
@@ -14,4 +13,3 @@ export type Category = {
   name: string;
   color: string;
 };
-

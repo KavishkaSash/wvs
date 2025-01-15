@@ -58,7 +58,6 @@ const WeightVerification: React.FC = () => {
   });
 
   const [status, setStatus] = useState<"acceptable" | "rejected" | "">("");
-  const [savedRecords, setSavedRecords] = useState<FormData[]>([]);
 
   const handleInputChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -79,12 +78,9 @@ const WeightVerification: React.FC = () => {
   const handlePrint = useCallback(() => {
     const printWindow = window.open("", "_blank");
     if (!printWindow) return;
-
-    // Save record
-    setSavedRecords((prev) => [...prev, formData]);
+    if (!printWindow) return;
 
     printWindow.document.write(`
-      <!DOCTYPE html>
       <html>
         <head>
           <title>Weight Verification Label</title>

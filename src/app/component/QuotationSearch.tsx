@@ -4,7 +4,6 @@ import { useState, useEffect, useMemo } from "react";
 import { fetchQuotations, fetchCategories } from "../api/quotation";
 import { Quotation, Category } from "../types";
 import { useRouter } from "next/navigation";
-import dynamic from "next/dynamic";
 import "react-tabulator/lib/css/tabulator.min.css";
 import { ReactTabulator, ColumnDefinition } from "react-tabulator";
 import { Card } from "@/components/ui/card";

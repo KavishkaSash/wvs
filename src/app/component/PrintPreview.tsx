@@ -19,6 +19,12 @@ interface TeaLabelProps {
 export const TeaLabel: React.FC<TeaLabelProps> = ({ data }) => {
   const generateNumber = () => Math.floor(100000 + Math.random() * 900000);
 
+  const getStatusMark = (status: string) => {
+    if (status === "acceptable") return "✓";
+    if (status === "rejected") return "✗";
+    return "";
+  };
+
   const getCurrentDateTime = () => {
     const now = new Date();
     const day = String(now.getDate()).padStart(2, "0");
@@ -128,15 +134,9 @@ export const TeaLabel: React.FC<TeaLabelProps> = ({ data }) => {
             </div>
             <div class="weight-row">
               <div>GROSS(Kg)</div>
-              <div>${data.grossWeight || "11.70"}</div>
-            </div>
-          </div>
-          
-          <div class="verification-box">
-            <div>${generateNumber()}</div>
             <div class="status-mark">
-              ${
-                data.status === "acceptable"
+              ${getStatusMark(data.status)}
+            </div>
                   ? "✓"
                   : data.status === "rejected"
                   ? "✗"

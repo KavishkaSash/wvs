@@ -19,12 +19,6 @@ interface TeaLabelProps {
 export const TeaLabel: React.FC<TeaLabelProps> = ({ data }) => {
   const generateNumber = () => Math.floor(100000 + Math.random() * 900000);
 
-  const getStatusMark = (status: string) => {
-    if (status === "acceptable") return "✓";
-    if (status === "rejected") return "✗";
-    return "";
-  };
-
   const getCurrentDateTime = () => {
     const now = new Date();
     const day = String(now.getDate()).padStart(2, "0");
@@ -134,9 +128,15 @@ export const TeaLabel: React.FC<TeaLabelProps> = ({ data }) => {
             </div>
             <div class="weight-row">
               <div>GROSS(Kg)</div>
-            <div class="status-mark">
-              ${getStatusMark(data.status)}
+              <div>${data.grossWeight || "11.70"}</div>
             </div>
+          </div>
+          
+          <div class="verification-box">
+            <div>${generateNumber()}</div>
+            <div class="status-mark">
+              ${
+                data.status === "acceptable"
                   ? "✓"
                   : data.status === "rejected"
                   ? "✗"
@@ -176,16 +176,18 @@ export const TeaLabel: React.FC<TeaLabelProps> = ({ data }) => {
   };
 
   return (
-    <Card className="sticky top-4">
+    <Card className="sticky top-14">
       <CardContent className="pt-6">
         <h2 className="text-2xl font-bold mb-6">Print Preview</h2>
         <div
-          className="print-content font-mono bg-white mx-auto border border-gray-200"
+          className="print-content font-mono bg-white mx-auto border border-gray-200 mt-14"
           style={{
             width: "7.5cm",
             height: "5cm",
             padding: "0.2cm",
             fontSize: "10px",
+            transform: "scale(1.5)", // Scale up the view for better readability
+            // Adjust scaling origin
           }}
         >
           {/* Preview content remains the same as your original code */}
@@ -241,7 +243,7 @@ export const TeaLabel: React.FC<TeaLabelProps> = ({ data }) => {
           </div>
         </div>
 
-        <div className="mt-6">
+        <div className="mt-14">
           <Button
             onClick={handlePrint}
             disabled={!data.isFormValid}

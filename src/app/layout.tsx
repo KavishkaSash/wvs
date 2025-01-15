@@ -24,12 +24,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className="h-full">
+      <head />
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased h-full`}
       >
-        <Navbar />
-        {children}
+        {/* Layout Container */}
+        <div className="flex flex-col h-full">
+          {/* Navbar */}
+          <Navbar />
+          {/* Main Content */}
+          <main className="pt-16 h-full overflow-auto">{children}</main>
+        </div>
       </body>
     </html>
   );

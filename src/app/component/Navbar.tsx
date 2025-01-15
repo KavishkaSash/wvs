@@ -1,59 +1,42 @@
-import React from "react";
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
-interface NavItem {
-  label: string;
-  href: string;
-}
+const Navbar = () => {
+  const currentPath = usePathname(); // Get the current pathname
 
-const navItems: NavItem[] = [
-  { label: "Home", href: "/" },
-  { label: "Wieght", href: "/weight" },
-  { label: "Quotation", href: "/quotation" },
-  { label: "Contact", href: "/contact" },
-];
+  const tabs = [
+    { label: "Create Header", path: "/createheader" },
+    { label: "Weight Verify", path: "/weight-verify" },
+  ];
 
-const Navbar: React.FC = () => {
   return (
-    <nav className="bg-gray-900 text-white shadow-md">
-      <div className="container mx-auto px-4 flex justify-between items-center h-16">
-        <Link href="/" className="text-xl font-bold">
-          MyWebsite
-        </Link>
-        <ul className="hidden md:flex space-x-6">
-          {navItems.map((item) => (
-            <li key={item.href}>
-              <Link href={item.href} className="hover:text-gray-300">
-                {item.label}
-              </Link>
-            </li>
-          ))}
-        </ul>
-        <div className="md:hidden">
-          <button
-            type="button"
-            className="text-gray-200 hover:text-white focus:outline-none"
-            aria-label="Toggle menu"
-          >
-            {/* Icon */}
-            <svg
-              className="w-6 h-6"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
+    <div className="bg-gray-900 text-white p-4 fixed top-0 left-0 w-full shadow-lg z-50">
+      <div className="max-w-5xl mx-auto flex items-center justify-between">
+        {/* Logo or Branding */}
+        <div className="text-lg font-semibold">
+          <Link href="/">MyApp</Link>
+        </div>
+
+        {/* Navigation Tabs */}
+        <div className="flex items-center space-x-6">
+          {tabs.map((tab) => (
+            <Link
+              key={tab.path}
+              href={tab.path}
+              className={`py-2 px-4 rounded-md transition-all duration-300 ease-in-out ${
+                currentPath === tab.path
+                  ? "bg-blue-600 text-white shadow-lg transform scale-105"
+                  : "bg-gray-700 text-gray-300 hover:bg-blue-500 hover:text-white hover:scale-105"
+              }`}
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M4 6h16M4 12h16M4 18h16"
-              />
-            </svg>
-          </button>
+              {tab.label}
+            </Link>
+          ))}
         </div>
       </div>
-    </nav>
+    </div>
   );
 };
 

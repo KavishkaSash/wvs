@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
-import "tabulator-tables/dist/css/tabulator.min.css";
+import "tabulator-tables/dist/css/tabulator_materialize.min.css";
+
 import { TabulatorFull as Tabulator } from "tabulator-tables";
-import { X } from "lucide-react";
 
 interface TableComponentProps {
   data: Record<string, any>[];
@@ -23,30 +23,6 @@ interface TableComponentProps {
   height?: string;
   onRowSelect: (rowData: any) => void;
 }
-
-const HeaderView: React.FC<{
-  selectedItem: Record<string, any> | null;
-  onRemove: () => void;
-}> = ({ selectedItem, onRemove }) => {
-  if (!selectedItem) return null;
-
-  return (
-    <div className="mb-4 p-4 bg-gray-50 rounded-lg">
-      <h3 className="text-lg font-semibold mb-2">Selected Item</h3>
-      <div className="flex items-center gap-2 bg-white px-3 py-1 rounded-full border border-gray-200">
-        <span className="text-sm">
-          {selectedItem[Object.keys(selectedItem)[0]]}
-        </span>
-        <button
-          onClick={onRemove}
-          className="p-1 hover:bg-gray-100 rounded-full"
-        >
-          <X size={14} />
-        </button>
-      </div>
-    </div>
-  );
-};
 
 const TableComponent: React.FC<TableComponentProps> = ({
   data,
@@ -101,7 +77,6 @@ const TableComponent: React.FC<TableComponentProps> = ({
 
   return (
     <div>
-      <HeaderView selectedItem={selectedItem} onRemove={handleRemoveItem} />
       <div className="mb-4">
         <input
           type="text"

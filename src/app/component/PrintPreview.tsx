@@ -18,7 +18,7 @@ interface TeaLabelProps {
 }
 
 export const TeaLabel: React.FC<TeaLabelProps> = ({ data }) => {
-  const generateNumber = () => Math.floor(100000 + Math.random() * 900000);
+  const VERIFICATION_NUMBER = "123456";
 
   const getCurrentDateTime = () => {
     const now = new Date();
@@ -36,6 +36,7 @@ export const TeaLabel: React.FC<TeaLabelProps> = ({ data }) => {
     const printWindow = window.open("", "_blank");
     if (!printWindow) return;
 
+    // Print styles remain the same as they're for the actual label printing
     const style = `
       @page {
         size: 75mm 50mm;
@@ -134,7 +135,7 @@ export const TeaLabel: React.FC<TeaLabelProps> = ({ data }) => {
           </div>
           
           <div class="verification-box">
-            <div>${generateNumber()}</div>
+            <div>${VERIFICATION_NUMBER}</div>
             <div class="status-mark">
               ${
                 data.status === "acceptable"
@@ -177,96 +178,98 @@ export const TeaLabel: React.FC<TeaLabelProps> = ({ data }) => {
   };
 
   return (
-    <Card className="w-full h-full border border-gray-300 shadow-lg rounded-lg p-6 bg-gray-50">
-      <CardContent className="flex flex-col h-full">
-        <h2 className="text-2xl font-bold mb-4 text-center">Print Preview</h2>
-
-        <div className="flex flex-col flex-1 overflow-hidden">
-          {/* Print Preview */}
-          <div
-            className="print-content mx-auto border border-gray-300 rounded-lg shadow-md bg-white flex justify-center items-center"
-            style={{
-              width: "100%", // Full width container
-              height: "15rem", // Define a fixed height
-              fontSize: "12px",
-              padding: "0.5rem",
-              transform: "scale(1)", // No scaling applied
-            }}
-          >
-            <div style={{ width: "7.5cm", height: "5cm", padding: "0.2cm" }}>
-              {/* Header Section */}
-              <div className="flex justify-between items-start mb-2">
-                <div className="font-bold text-sm">E24/00845</div>
-                <div className="flex gap-4 text-sm">
-                  <div>1</div>
-                  <div>{getCurrentDateTime()}</div>
-                </div>
-              </div>
-
-              {/* Product Details */}
-              <div className="font-bold text-sm mt-2">
-                {data.productName || "SUWALIF PUR CEY BLACK TEA"}
-              </div>
-              <div className="font-bold text-sm">
-                {`${data.innerCount || "36"}x100x2G TEA`}
-              </div>
-
-              {/* Weight Details */}
-              <div className="mt-4 flex text-sm">
-                <div className="w-1/2">
-                  <div className="flex justify-between">
-                    <div>INNERS</div>
-                    <div>{data.innerCount || "36"}</div>
-                  </div>
-                  <div className="flex justify-between">
-                    <div>NET(Kg)</div>
-                    <div>{data.netWeight || "7.20"}</div>
-                  </div>
-                  <div className="flex justify-between">
-                    <div>GROSS(Kg)</div>
-                    <div>{data.grossWeight || "11.70"}</div>
-                  </div>
-                </div>
-
-                <div className="flex-1 flex justify-end">
-                  <div className="border-2 border-black w-20 h-20 flex flex-col justify-center items-center rounded">
-                    <div className="text-center font-bold">
-                      {generateNumber()}
-                    </div>
-                    {data.status === "acceptable" && (
-                      <div className="text-3xl mt-1 text-green-500">✓</div>
-                    )}
-                    {data.status === "rejected" && (
-                      <div className="text-3xl mt-1 text-red-500">✗</div>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {/* Carton Details */}
-              <div className="mt-4">
-                <div className="flex gap-8">
-                  <div className="font-bold text-sm">CARTON NO</div>
-                  <div className="text-sm">{data.masterCartons || "115"}</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Print Button */}
-        <div className="mt-10">
+    <Card className="w-full max-w-full mx-auto">
+      <CardContent className="p-6">
+        <div className="flex items-center justify-between mb-8">
+          <h2 className="text-2xl font-bold text-gray-800">Label Preview</h2>
           <Button
             onClick={handlePrint}
-            className={`w-full py-3 text-lg font-semibold ${
-              data.isFormValid
-                ? "bg-blue-500 hover:bg-blue-600 text-white"
-                : "bg-gray-300 text-gray-500 cursor-not-allowed"
-            }`}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md"
           >
-            <Printer className="w-5 h-5 mr-2" />
+            <Printer className="w-4 h-4 mr-2" />
             Print Label
           </Button>
+        </div>
+
+        {/* Label Preview with small padding */}
+        <div className="bg-white border border-gray-200 shadow-sm p-2 rounded-lg">
+          {/* Label Container with fixed aspect ratio */}
+
+          {/* Label Content */}
+          <div
+            className="bg-white border border-gray-300 rounded-lg justify-center mx-auto"
+            style={{ width: "75mm", height: "50mm", padding: "1mm" }}
+          >
+            {/* Header Row */}
+            <div className="flex justify-between text-sm mb-2">
+              <span className="font-mono font-semibold text-gray-800">
+                E24/00845
+              </span>
+              <div className="flex gap-3 font-mono text-gray-600">
+                <span>1</span>
+                <span>{getCurrentDateTime()}</span>
+              </div>
+            </div>
+
+            {/* Product Info */}
+            <div className="font-mono font-bold text-sm text-gray-800 mb-3">
+              <div>{data.productName || "SUWALIF PUR CEY BLACK TEA"}</div>
+              <div className="text-sm text-gray-600">
+                {`${data.innerCount || "36"}x100x2G TEA`}
+              </div>
+            </div>
+
+            {/* Details Section */}
+            <div className="flex justify-between items-start mb-3">
+              {/* Weight Info */}
+              <div className="font-mono text-sm text-gray-800">
+                <div className="flex justify-between gap-4">
+                  <span>INNERS</span>
+                  <span className="font-semibold text-gray-600">
+                    {data.innerCount || "36"}
+                  </span>
+                </div>
+                <div className="flex justify-between gap-4">
+                  <span>NET(Kg)</span>
+                  <span className="font-semibold text-gray-600">
+                    {data.netWeight || "7.20"}
+                  </span>
+                </div>
+                <div className="flex justify-between gap-4">
+                  <span>GROSS(Kg)</span>
+                  <span className="font-semibold text-gray-600">
+                    {data.grossWeight || "11.70"}
+                  </span>
+                </div>
+              </div>
+
+              {/* Verification Box */}
+              <div className="border-2 border-gray-800 w-16 h-16 rounded-lg flex flex-col items-center justify-center bg-gray-50">
+                <span className="font-mono font-bold text-sm text-gray-700 mb-1">
+                  {VERIFICATION_NUMBER}
+                </span>
+                {data.status && (
+                  <span
+                    className={`text-2xl ${
+                      data.status === "acceptable"
+                        ? "text-green-600"
+                        : "text-red-600"
+                    }`}
+                  >
+                    {data.status === "acceptable" ? "✓" : "✗"}
+                  </span>
+                )}
+              </div>
+            </div>
+
+            {/* Carton Info */}
+            <div className="flex gap-4 mt-3 font-mono text-sm text-gray-800">
+              <span className="font-semibold">CARTON NO</span>
+              <span className="text-gray-600">
+                {data.masterCartons || "115"}
+              </span>
+            </div>
+          </div>
         </div>
       </CardContent>
     </Card>

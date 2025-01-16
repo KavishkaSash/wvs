@@ -1,54 +1,82 @@
 "use client";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import React, { useEffect, useState } from "react";
-import { TableData } from "./HeaderCreateView";
 
-function CreatedHeadersCard() {
-  const [headerData, setHeaderData] = useState<TableData | null>(null);
+type HeaderData = {
+  id: number;
+  title: string;
+  description: string;
+};
+
+// Mock Data Function (Replace with API call later)
+const fetchMockData = async () => {
+  return Array.from({ length: 20 }, (_, i) => ({
+    id: i + 1,
+    title: `Header ${i + 1}`,
+    description: `Description for header ${i + 1}`,
+  }));
+};
+
+const ScrollableSection = ({
+  onCardClick,
+}: {
+  onCardClick?: (data: HeaderData) => void;
+}) => {
+  const [headers, setHeaders] = useState<HeaderData[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filteredHeaders, setFilteredHeaders] = useState<HeaderData[]>([]);
 
   useEffect(() => {
-    // Retrieve data from localStorage when component mounts
-    const storedData = localStorage.getItem("headerData");
-    if (storedData) {
-      setHeaderData(JSON.parse(storedData));
-      // Clear the data from localStorage after retrieving it
-      localStorage.removeItem("headerData");
-    }
+    const fetchData = async () => {
+      const data = await fetchMockData();
+      setHeaders(data);
+      setFilteredHeaders(data);
+    };
+    fetchData();
   }, []);
 
-  if (!headerData) {
-    return <div className="text-center p-6">No header data found.</div>;
-  }
+  useEffect(() => {
+    setFilteredHeaders(
+      headers.filter(
+        (header) =>
+          header.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          header.description.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    );
+  }, [searchTerm, headers]);
+
   return (
-    <div>
-      <Card className="max-w-2xl mx-auto">
-        <CardContent className="p-6">
-          <div className="space-y-4">
-            {/* Header Information */}
-            <div className="grid grid-cols-2 gap-4 mb-6">
-              <div className="bg-gray-50 p-3 rounded">
-                <span className="block text-sm text-gray-600">Line No</span>
-                <span className="font-medium">{headerData.name}</span>
-              </div>
-              <div className="bg-gray-50 p-3 rounded">
-                <span className="block text-sm text-gray-600">Contract No</span>
-                <span className="font-medium">{headerData.progress}</span>
-              </div>
-              <div className="bg-gray-50 p-3 rounded">
-                <span className="block text-sm text-gray-600">Product</span>
-                <span className="font-medium">{headerData.gender}</span>
-              </div>
-              <div className="bg-gray-50 p-3 rounded">
-                <span className="block text-sm text-gray-600">Quantity</span>
-                <span className="font-medium">{headerData.col}</span>
-              </div>
+    <div className="flex flex-col h-full">
+      <div className="mb-4">
+        <input
+          type="text"
+          placeholder="Search headers..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+        />
+      </div>
+
+      <div
+        className="flex-1 bg-slate-100 rounded-lg shadow-md p-4 overflow-y-auto"
+        style={{ maxHeight: "100vh" }}
+      >
+        {filteredHeaders.length === 0 ? (
+          <p className="text-center text-slate-600">No headers found...</p>
+        ) : (
+          filteredHeaders.map((header) => (
+            <div
+              key={header.id}
+              className="bg-white p-4 rounded-lg mb-4 shadow-sm hover:bg-gray-50 transition cursor-pointer"
+              onClick={() => onCardClick?.(header)}
+            >
+              <h3 className="font-semibold text-slate-800">{header.title}</h3>
+              <p className="text-sm text-slate-600">{header.description}</p>
             </div>
-          </div>
-        </CardContent>
-      </Card>
+          ))
+        )}
+      </div>
     </div>
   );
-}
+};
 
-export default CreatedHeadersCard;
+export default ScrollableSection;

@@ -68,6 +68,9 @@ export const TeaLabel: React.FC<TeaLabelProps> = ({ data }) => {
     justify-content: space-between;
     margin-bottom: 1mm; /* Reduced margin */
   }
+    .date{
+      font-size:8pt;
+    }
   .product-info {
     font-weight: bold;
         margin-bottom: 3mm;
@@ -131,7 +134,7 @@ export const TeaLabel: React.FC<TeaLabelProps> = ({ data }) => {
   <div class="print-label">
     <div class="header">
       <div style="font-weight: bold;">E24/00845</div>
-      <div style="display: flex; gap: 4mm;">
+      <div class='date' style="display: flex; gap: 4mm;">
         <div>1</div>
         <div>${getCurrentDateTime()}</div>
       </div>

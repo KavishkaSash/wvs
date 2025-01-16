@@ -38,122 +38,125 @@ export const TeaLabel: React.FC<TeaLabelProps> = ({ data }) => {
 
     // Print styles remain the same as they're for the actual label printing
     const style = `
-      @page {
-        size: 75mm 50mm;
+    @page {
+      size: 75mm 50mm;
+      margin: 0;
+    }
+    @media print {
+      html, body {
         margin: 0;
+        padding: 0;
+        width: 75mm;
+        height: 50mm;
       }
-      @media print {
-        html, body {
-          margin: 0;
-          padding: 0;
-          width: 75mm;
-          height: 50mm;
-        }
-        .print-label {
-          width: 75mm;
-          height: 50mm;
-          padding: 2mm;
-          box-sizing: border-box;
-          font-family: monospace;
-          font-size: 10pt;
-          line-height: 1.2;
-          position: relative;
-          page-break-after: always;
-        }
-        .header {
-          display: flex;
-          justify-content: space-between;
-          margin-bottom: 2mm;
-        }
-        .product-info {
-          font-weight: bold;
-          margin-bottom: 4mm;
-        }
-        .details {
-          display: flex;
-          justify-content: space-between;
-          margin-bottom: 4mm;
-        }
-        .weight-info {
-          width: 32mm;
-        }
-        .weight-row {
-          display: flex;
-          justify-content: space-between;
-          margin-bottom: 1mm;
-        }
-        .verification-box {
-          border: 0.5mm solid black;
-          width: 20mm;
-          height: 20mm;
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          align-items: center;
-          font-weight: bold;
-        }
-        .status-mark {
-          font-size: 24pt;
-          margin-top: 1mm;
-        }
-        .carton-info {
-          display: flex;
-          gap: 8mm;
-        }
+      .print-label {
+        width: 75mm;
+        height: 50mm;
+        padding: 2mm;
+        box-sizing: border-box;
+        font-family: poppins;
+        font-size: 10pt;
+        line-height: 1.2;
+        position: relative;
+        page-break-after: always;
       }
-    `;
+      .header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 1.5mm;
+      }
+      .product-info {
+        font-weight: bold;
+        margin-bottom: 3mm;
+      }
+      .details {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 2mm;
+      }
+      .weight-info {
+        width: 32mm;
+      }
+      .weight-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 1mm;
+      }
+      .verification-box {
+        border: 0.5mm solid black;
+        width: 20mm;
+        height: 20mm;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        font-weight: bold;
+        margin-top: 2mm;
+      }
+      .status-mark {
+        font-size: 18pt;
+        margin-top: 1mm;
+      }
+      .carton-info {
+        display: flex;
+        gap: 3mm; /* Adjusted space to reduce gap */
+        margin-top: 0.5mm; /* Reduced margin for better alignment */
+        font-size: 12pt; /* Slightly increased font size for better readability */
+      }
+    }
+  `;
 
     const content = `
-      <div class="print-label">
-        <div class="header">
-          <div style="font-weight: bold;">E24/00845</div>
-          <div style="display: flex; gap: 4mm;">
-            <div>1</div>
-            <div>${getCurrentDateTime()}</div>
-          </div>
-        </div>
-        
-        <div class="product-info">
-          <div>${data.productName || "SUWALIF PUR CEY BLACK TEA"}</div>
-          <div>${data.innerCount || "36"}x100x2G TEA</div>
-        </div>
-        
-        <div class="details">
-          <div class="weight-info">
-            <div class="weight-row">
-              <div>INNERS</div>
-              <div>${data.innerCount || "36"}</div>
-            </div>
-            <div class="weight-row">
-              <div>NET(Kg)</div>
-              <div>${data.netWeight || "7.20"}</div>
-            </div>
-            <div class="weight-row">
-              <div>GROSS(Kg)</div>
-              <div>${data.grossWeight || "11.70"}</div>
-            </div>
-          </div>
-          
-          <div class="verification-box">
-            <div>${VERIFICATION_NUMBER}</div>
-            <div class="status-mark">
-              ${
-                data.status === "acceptable"
-                  ? "✓"
-                  : data.status === "rejected"
-                  ? "✗"
-                  : ""
-              }
-            </div>
-          </div>
-        </div>
-        
-        <div class="carton-info">
-          <div style="font-weight: bold;">CARTON NO</div>
-          <div>${data.masterCartons || "115"}</div>
+    <div class="print-label">
+      <div class="header">
+        <div style="font-weight: bold;">E24/00845</div>
+        <div style="display: flex; gap: 4mm;">
+          <div>1</div>
+          <div>${getCurrentDateTime()}</div>
         </div>
       </div>
-    `;
+      
+      <div class="product-info">
+        <div>${data.productName || "SUWALIF PUR CEY BLACK TEA"}</div>
+        <div>${data.innerCount || "36"}x100x2G TEA</div>
+      </div>
+      
+      <div class="details">
+        <div class="weight-info">
+          <div class="weight-row">
+            <div>INNERS</div>
+            <div>${data.innerCount || "36"}</div>
+          </div>
+          <div class="weight-row">
+            <div>NET(Kg)</div>
+            <div>${data.netWeight || "7.20"}</div>
+          </div>
+          <div class="weight-row">
+            <div>GROSS(Kg)</div>
+            <div>${data.grossWeight || "11.70"}</div>
+          </div>
+        </div>
+        
+        <div class="verification-box">
+          <div>${VERIFICATION_NUMBER}</div>
+          <div class="status-mark">
+            ${
+              data.status === "acceptable"
+                ? "✓"
+                : data.status === "rejected"
+                ? "✗"
+                : ""
+            }
+          </div>
+        </div>
+      </div>
+      
+      <div class="carton-info">
+        <div style="font-weight: bold;">CARTON NO</div>
+        <div>${data.masterCartons || "115"}</div>
+      </div>
+    </div>
+  `;
 
     printWindow.document.write(`
       <!DOCTYPE html>

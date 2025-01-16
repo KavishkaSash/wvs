@@ -29,7 +29,7 @@ type WeightVerifyDisplayProps = {
 function WeightVerifyDisplay({
   productName,
   onWeightVerified,
-}: WeightVerifyDisplayProps) {
+}: Readonly<WeightVerifyDisplayProps>) {
   const [currentWeight, setCurrentWeight] = useState(0.0);
   const [status, setStatus] = useState("pending");
   const [lineNumber] = useState("LN-12345");

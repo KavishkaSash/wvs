@@ -58,20 +58,22 @@ const ScrollableSection = ({
 
       <div
         className="flex-1 bg-slate-100 rounded-lg shadow-md p-4 overflow-y-auto"
-        style={{ maxHeight: "100vh" }}
+        style={{ maxHeight: "80vh" }}
       >
         {filteredHeaders.length === 0 ? (
           <p className="text-center text-slate-600">No headers found...</p>
         ) : (
           filteredHeaders.map((header) => (
-            <div
+            <button
               key={header.id}
-              className="bg-white p-4 rounded-lg mb-4 shadow-sm hover:bg-gray-50 transition cursor-pointer"
+              className="w-full text-left bg-white p-4 rounded-lg mb-4 shadow-sm hover:bg-gray-50 transition cursor-pointer"
               onClick={() => onCardClick?.(header)}
+              onKeyDown={(e) => e.key === "Enter" && onCardClick?.(header)}
+              aria-label={`Select header: ${header.title}`}
             >
               <h3 className="font-semibold text-slate-800">{header.title}</h3>
               <p className="text-sm text-slate-600">{header.description}</p>
-            </div>
+            </button>
           ))
         )}
       </div>

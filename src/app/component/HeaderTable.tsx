@@ -52,8 +52,11 @@ const TableComponent: React.FC<TableComponentProps> = ({
       const table = new Tabulator(tableRef.current, {
         data,
         columns,
-        layout: "fitColumns",
-        height,
+        layout: "fitColumns", // Automatically adjust column width
+        height, // Set the height of the table
+        pagination: true, // Enable local pagination
+        paginationSize: 5, // Number of rows per page
+        paginationSizeSelector: [5, 10, 20, 50], // Optional selector for page size
         selectable: 1, // Allow only one row to be selected
       });
 
@@ -70,10 +73,16 @@ const TableComponent: React.FC<TableComponentProps> = ({
   }, [data, columns, height, onRowSelect]);
 
   useEffect(() => {
-    if (tableInstance) {
-      tableInstance.setFilter(searchField, "like", search);
+    if (tableInstance && search) {
+      tableInstance.setFilter((data: any) => {
+        return Object.values(data).some((value) =>
+          String(value).toLowerCase().includes(search.toLowerCase())
+        );
+      });
+    } else if (tableInstance) {
+      tableInstance.clearFilter(true);
     }
-  }, [search, searchField, tableInstance]);
+  }, [search, tableInstance]);
 
   return (
     <div>

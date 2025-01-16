@@ -38,125 +38,150 @@ export const TeaLabel: React.FC<TeaLabelProps> = ({ data }) => {
 
     // Print styles remain the same as they're for the actual label printing
     const style = `
-    @page {
-      size: 75mm 50mm;
-      margin: 0;
-    }
-    @media print {
-      html, body {
-        margin: 0;
-        padding: 0;
-        width: 75mm;
-        height: 50mm;
-      }
-      .print-label {
-        width: 75mm;
-        height: 50mm;
+  @page {
+  size: 75mm 50mm;
+  margin: 0;
+  overflow: hidden;
+}
+@media print {
+  html, body {
+    margin: 0;
+    padding: 0;
+    width: 75mm;
+    height: 50mm;
+    overflow: hidden;
+  }
+  .print-label {
+    width: 75mm;
+    height: 50mm;
         padding: 2mm;
-        box-sizing: border-box;
+    box-sizing: border-box;
         font-family: poppins;
         font-size: 10pt;
         line-height: 1.2;
-        position: relative;
-        page-break-after: always;
-      }
-      .header {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 1.5mm;
-      }
-      .product-info {
-        font-weight: bold;
+    position: relative;
+    page-break-after: always;
+    overflow: hidden;
+  }
+  .header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1mm; /* Reduced margin */
+  }
+  .product-info {
+    font-weight: bold;
         margin-bottom: 3mm;
-      }
-      .details {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 2mm;
-      }
-      .weight-info {
-        width: 32mm;
-      }
-      .weight-row {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 1mm;
-      }
-      .verification-box {
-        border: 0.5mm solid black;
-        width: 20mm;
-        height: 20mm;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        font-weight: bold;
-        margin-top: 2mm;
-      }
-      .status-mark {
-        font-size: 18pt;
-        margin-top: 1mm;
-      }
-      .carton-info {
-        display: flex;
+  }
+  .details {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1.5mm; /* Reduced margin */
+  }
+  .weight-info {
+    width: 30mm; /* Adjusted width */
+  }
+  .weight-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.8mm; /* Reduced spacing */
+  }
+  .verification-box {
+      border: 0.4mm solid #000;
+      width: 20mm;
+      height: 20mm;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: center;
+      font-weight: 600;
+      margin-top: 1.5mm;
+      background-color: #fafafa;
+      position: relative;
+      padding-top: 2mm;
+    }
+  .verification-number {
+      font-size: 5pt;
+      position: absolute;
+      top: 1mm;
+      left: 50%;
+      transform: translateX(-50%);
+      color: #333;
+    }
+    .status-mark {
+      flex-grow: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .status-mark svg {
+      width: 16mm;
+      height: 16mm;
+    }
+  .carton-info {
+    display: flex;
         gap: 3mm; /* Adjusted space to reduce gap */
         margin-top: 0.5mm; /* Reduced margin for better alignment */
         font-size: 12pt; /* Slightly increased font size for better readability */
-      }
-    }
-  `;
+  }
+}
+
+`;
 
     const content = `
-    <div class="print-label">
-      <div class="header">
-        <div style="font-weight: bold;">E24/00845</div>
-        <div style="display: flex; gap: 4mm;">
-          <div>1</div>
-          <div>${getCurrentDateTime()}</div>
-        </div>
-      </div>
-      
-      <div class="product-info">
-        <div>${data.productName || "SUWALIF PUR CEY BLACK TEA"}</div>
-        <div>${data.innerCount || "36"}x100x2G TEA</div>
-      </div>
-      
-      <div class="details">
-        <div class="weight-info">
-          <div class="weight-row">
-            <div>INNERS</div>
-            <div>${data.innerCount || "36"}</div>
-          </div>
-          <div class="weight-row">
-            <div>NET(Kg)</div>
-            <div>${data.netWeight || "7.20"}</div>
-          </div>
-          <div class="weight-row">
-            <div>GROSS(Kg)</div>
-            <div>${data.grossWeight || "11.70"}</div>
-          </div>
-        </div>
-        
-        <div class="verification-box">
-          <div>${VERIFICATION_NUMBER}</div>
-          <div class="status-mark">
-            ${
-              data.status === "acceptable"
-                ? "✓"
-                : data.status === "rejected"
-                ? "✗"
-                : ""
-            }
-          </div>
-        </div>
-      </div>
-      
-      <div class="carton-info">
-        <div style="font-weight: bold;">CARTON NO</div>
-        <div>${data.masterCartons || "115"}</div>
+  <div class="print-label">
+    <div class="header">
+      <div style="font-weight: bold;">E24/00845</div>
+      <div style="display: flex; gap: 4mm;">
+        <div>1</div>
+        <div>${getCurrentDateTime()}</div>
       </div>
     </div>
-  `;
+    
+    <div class="product-info">
+      <div>${data.productName || "SUWALIF PUR CEY BLACK TEA"}</div>
+      <div>${data.innerCount || "36"}x100x2G TEA</div>
+    </div>
+    
+    <div class="details" style="font-weight: bold;">
+      <div class="weight-info">
+        <div class="weight-row">
+          <div>INNERS</div>
+          <div>${data.innerCount || "36"}</div>
+        </div>
+        <div class="weight-row">
+          <div>NET(Kg)</div>
+          <div>${data.netWeight || "7.20"}</div>
+        </div>
+        <div class="weight-row">
+          <div>GROSS(Kg)</div>
+          <div>${data.grossWeight || "11.70"}</div>
+        </div>
+      </div>
+      
+      <div class="verification-box">
+          <div class="verification-number">${VERIFICATION_NUMBER}</div>
+        <div class="status-mark">
+            ${
+              data.status === "acceptable"
+                ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" width="24" height="24" fill="black">
+           <path d="M438.6 105.4c12.5 12.5 12.5 32.8 0 45.3l-256 256c-12.5 12.5-32.8 12.5-45.3 0l-128-128c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0L160 338.7 393.4 105.4c12.5-12.5 32.8-12.5 45.3 0z"/>
+         </svg>`
+                : data.status === "rejected"
+                ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" width="24" height="24" fill="black">
+           <path d="M342.6 150.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L192 210.7 86.6 105.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L146.7 256 41.4 361.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L192 301.3 297.4 406.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L237.3 256 342.6 150.6z"/>
+         </svg>`
+                : ""
+            }
+        </div>
+      </div>
+    </div>
+    
+    <div class="carton-info">
+      <div style="font-weight: bold;">CARTON NO</div>
+      <div style="font-weight: bold;">${data.masterCartons || "115"}</div>
+    </div>
+  </div>
+`;
 
     printWindow.document.write(`
       <!DOCTYPE html>
@@ -268,7 +293,7 @@ export const TeaLabel: React.FC<TeaLabelProps> = ({ data }) => {
             {/* Carton Info */}
             <div className="flex gap-4 mt-3 font-mono text-sm text-gray-800">
               <span className="font-semibold">CARTON NO</span>
-              <span className="text-gray-600">
+              <span className="text-gray-600 font-semibold">
                 {data.masterCartons || "115"}
               </span>
             </div>

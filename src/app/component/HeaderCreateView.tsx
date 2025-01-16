@@ -34,17 +34,29 @@ const HeaderCreateView: React.FC<HeaderCreateViewProps> = ({ selectedRow }) => {
   }, [selectedRow, router]);
 
   const fields = [
+    { label: "Customer", value: selectedRow?.dob },
+    { label: "Product", value: selectedRow?.gender },
+    { label: "Finished Good Number", value: selectedRow?.gender },
     { label: "Line No", value: selectedRow?.name },
     { label: "Contract No", value: selectedRow?.progress },
-    { label: "Product", value: selectedRow?.gender },
+    { label: "Standard Wieght(Kg)", value: selectedRow?.progress },
+    {
+      label: "Number of Inners for Master carton",
+      value: selectedRow?.progress,
+    },
+    {
+      label: "Number of Masters for Order",
+      value: selectedRow?.progress,
+    },
+
+    { label: "Gross Weight per Inner ", value: selectedRow?.rating },
     { label: "Job No", value: selectedRow?.rating },
-    { label: "Quantity", value: selectedRow?.col },
-    { label: "Customer", value: selectedRow?.dob },
+    { label: "Tea Weight per Inne", value: selectedRow?.col },
   ];
 
   return (
     <div className="mt-6">
-      <Card className="w-full max-w-2xl bg-gray-100 border border-gray-300 rounded-none shadow-sm">
+      <Card className="w-full max-w-full bg-gray-100 border border-gray-300 rounded-none shadow-sm">
         <CardHeader className="py-4 border-b border-gray-300 bg-gray-50">
           <h2 className="text-2xl font-semibold text-gray-700">
             Create Header
@@ -54,9 +66,9 @@ const HeaderCreateView: React.FC<HeaderCreateViewProps> = ({ selectedRow }) => {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
             {fields.map((field) => (
               <div key={field.label} className="flex flex-col">
-                <span className="font-medium text-gray-600">{field.label}</span>
-                <span className="text-gray-700">
-                  {field.value?.toString() || "N/A"}
+                <span className="font-semibold text-lg text-gray-600">
+                  {field.label}:{" "}
+                  <span className="text-gray-700">{field.value || "N/A"}</span>
                 </span>
               </div>
             ))}

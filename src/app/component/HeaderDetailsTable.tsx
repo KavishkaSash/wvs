@@ -39,11 +39,18 @@ const Page: React.FC = () => {
 
   const columns = [
     { title: "Line_NO", field: "name" },
-    { title: "Contract_NO", field: "progress", sorter: "number" as const },
     { title: "Product", field: "gender" },
     { title: "Job_No", field: "rating", sorter: "number" as const },
-    { title: "Quantity", field: "col" },
-    { title: "Customer", field: "dob", sorter: "date" as const },
+    {
+      title: "Finish Good Number",
+      field: "progress",
+      sorter: "number" as const,
+    },
+    { title: "Contract_NO", field: "progress", sorter: "number" as const },
+
+    { title: "No/Inners for a Master  ", field: "col" },
+    { title: "No/Masters for the Order ", field: "col" },
+    { title: "Weight per Master", field: "dob", sorter: "date" as const },
   ];
 
   const handleRowSelect = (rowData: TableData) => {

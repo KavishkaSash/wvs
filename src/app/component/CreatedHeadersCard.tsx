@@ -57,7 +57,7 @@ const ScrollableSection = ({
       </div>
 
       <div
-        className="flex-1 bg-slate-100 rounded-lg shadow-md p-4 overflow-y-auto"
+        className="flex-1  rounded-lg  p-4 overflow-y-auto"
         style={{ maxHeight: "80vh" }}
       >
         {filteredHeaders.length === 0 ? (

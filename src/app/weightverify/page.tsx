@@ -40,8 +40,8 @@ const Page = () => {
   return (
     <div className="flex h-screen">
       {/* Left Column */}
-      <div className="bg-gray-50 border-r border-gray-200 flex flex-col gap-4 p-4 shadow-sm w-1/3">
-        <div className="flex-1 bg-white rounded-lg shadow-md p-4">
+      <div className=" flex flex-col gap-4 p-4 shadow-sm w-1/3">
+        <div className="flex-1 bg-gray-100 rounded-lg shadow-md p-4">
           <ScrollableSection onCardClick={handleCardClick} />
         </div>
       </div>

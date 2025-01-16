@@ -1,3 +1,4 @@
+"use client";
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -176,79 +177,92 @@ export const TeaLabel: React.FC<TeaLabelProps> = ({ data }) => {
   };
 
   return (
-    <Card className="sticky top-14">
-      <CardContent className="pt-6">
-        <h2 className="text-2xl font-bold mb-6">Print Preview</h2>
-        <div
-          className="print-content font-mono bg-white mx-auto border border-gray-200 mt-14"
-          style={{
-            width: "7.5cm",
-            height: "5cm",
-            padding: "0.2cm",
-            fontSize: "10px",
-            transform: "scale(1.5)", // Scale up the view for better readability
-            // Adjust scaling origin
-          }}
-        >
-          {/* Preview content remains the same as your original code */}
-          <div className="flex justify-between items-start">
-            <div className="font-bold">E24/00845</div>
-            <div className="flex gap-4">
-              <div>1</div>
-              <div>{getCurrentDateTime()}</div>
-            </div>
-          </div>
+    <Card className="w-full h-full border border-gray-300 shadow-lg rounded-lg p-6 bg-gray-50">
+      <CardContent className="flex flex-col h-full">
+        <h2 className="text-2xl font-bold mb-4 text-center">Print Preview</h2>
 
-          <div className="font-bold mt-2">
-            {data.productName || "SUWALIF PUR CEY BLACK TEA"}
-          </div>
-          <div className="font-bold">
-            {`${data.innerCount || "36"}x100x2G TEA`}
-          </div>
+        <div className="flex flex-col flex-1 overflow-hidden">
+          {/* Print Preview */}
+          <div
+            className="print-content mx-auto border border-gray-300 rounded-lg shadow-md bg-white flex justify-center items-center"
+            style={{
+              width: "100%", // Full width container
+              height: "15rem", // Define a fixed height
+              fontSize: "12px",
+              padding: "0.5rem",
+              transform: "scale(1)", // No scaling applied
+            }}
+          >
+            <div style={{ width: "7.5cm", height: "5cm", padding: "0.2cm" }}>
+              {/* Header Section */}
+              <div className="flex justify-between items-start mb-2">
+                <div className="font-bold text-sm">E24/00845</div>
+                <div className="flex gap-4 text-sm">
+                  <div>1</div>
+                  <div>{getCurrentDateTime()}</div>
+                </div>
+              </div>
 
-          <div className="mt-4 flex">
-            <div className="w-32">
-              <div className="flex justify-between">
-                <div>INNERS</div>
-                <div>{data.innerCount || "36"}</div>
+              {/* Product Details */}
+              <div className="font-bold text-sm mt-2">
+                {data.productName || "SUWALIF PUR CEY BLACK TEA"}
               </div>
-              <div className="flex justify-between">
-                <div>NET(Kg)</div>
-                <div>{data.netWeight || "7.20"}</div>
+              <div className="font-bold text-sm">
+                {`${data.innerCount || "36"}x100x2G TEA`}
               </div>
-              <div className="flex justify-between">
-                <div>GROSS(Kg)</div>
-                <div>{data.grossWeight || "11.70"}</div>
-              </div>
-            </div>
 
-            <div className="flex-1 flex justify-end">
-              <div className="border-2 border-black w-20 h-20 flex flex-col justify-center items-center">
-                <div className="text-center font-bold">{generateNumber()}</div>
-                {data.status === "acceptable" && (
-                  <div className="text-3xl mt-1">✓</div>
-                )}
-                {data.status === "rejected" && (
-                  <div className="text-3xl mt-1 text-red-500">✗</div>
-                )}
-              </div>
-            </div>
-          </div>
+              {/* Weight Details */}
+              <div className="mt-4 flex text-sm">
+                <div className="w-1/2">
+                  <div className="flex justify-between">
+                    <div>INNERS</div>
+                    <div>{data.innerCount || "36"}</div>
+                  </div>
+                  <div className="flex justify-between">
+                    <div>NET(Kg)</div>
+                    <div>{data.netWeight || "7.20"}</div>
+                  </div>
+                  <div className="flex justify-between">
+                    <div>GROSS(Kg)</div>
+                    <div>{data.grossWeight || "11.70"}</div>
+                  </div>
+                </div>
 
-          <div className="mt-4">
-            <div className="flex gap-8">
-              <div className="font-bold">CARTON NO</div>
-              <div>{data.masterCartons || "115"}</div>
+                <div className="flex-1 flex justify-end">
+                  <div className="border-2 border-black w-20 h-20 flex flex-col justify-center items-center rounded">
+                    <div className="text-center font-bold">
+                      {generateNumber()}
+                    </div>
+                    {data.status === "acceptable" && (
+                      <div className="text-3xl mt-1 text-green-500">✓</div>
+                    )}
+                    {data.status === "rejected" && (
+                      <div className="text-3xl mt-1 text-red-500">✗</div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Carton Details */}
+              <div className="mt-4">
+                <div className="flex gap-8">
+                  <div className="font-bold text-sm">CARTON NO</div>
+                  <div className="text-sm">{data.masterCartons || "115"}</div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
-        <div className="mt-14">
+        {/* Print Button */}
+        <div className="mt-10">
           <Button
             onClick={handlePrint}
-            disabled={!data.isFormValid}
-            className="w-full"
-            variant={data.isFormValid ? "default" : "secondary"}
+            className={`w-full py-3 text-lg font-semibold ${
+              data.isFormValid
+                ? "bg-blue-500 hover:bg-blue-600 text-white"
+                : "bg-gray-300 text-gray-500 cursor-not-allowed"
+            }`}
           >
             <Printer className="w-5 h-5 mr-2" />
             Print Label

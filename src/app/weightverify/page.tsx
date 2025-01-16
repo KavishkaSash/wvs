@@ -6,6 +6,9 @@ import { Button } from "@/components/ui/button";
 import type { TableData } from "../component/HeaderCreateView";
 import { useRouter } from "next/navigation";
 import WeightDisplay from "../component/WieghtVerifyView";
+import WeightVerification from "../component/WeightVerification";
+import { TeaLabel } from "../component/PrintPreview";
+import CreatedHeadersCard from "../component/CreatedHeadersCard";
 
 const Page = () => {
   const router = useRouter();
@@ -25,71 +28,47 @@ const Page = () => {
     router.back();
   };
 
-  if (!headerData) {
-    return <div className="text-center p-6">No header data found.</div>;
-  }
-
   return (
-    <div className="container mx-auto p-6">
-      <Card className="max-w-2xl mx-auto">
-        <CardHeader className="border-b border-gray-200">
-          <div className="flex justify-between items-center">
-            <h1 className="text-2xl font-semibold text-gray-800">
-              Weight Verification
-            </h1>
-            <Button variant="outline" onClick={handleBack} className="text-sm">
-              Back
-            </Button>
-          </div>
-        </CardHeader>
-        <CardContent className="p-6">
-          <div className="space-y-4">
-            {/* Header Information */}
-            <div className="grid grid-cols-2 gap-4 mb-6">
-              <div className="bg-gray-50 p-3 rounded">
-                <span className="block text-sm text-gray-600">Line No</span>
-                <span className="font-medium">{headerData.name}</span>
-              </div>
-              <div className="bg-gray-50 p-3 rounded">
-                <span className="block text-sm text-gray-600">Contract No</span>
-                <span className="font-medium">{headerData.progress}</span>
-              </div>
-              <div className="bg-gray-50 p-3 rounded">
-                <span className="block text-sm text-gray-600">Product</span>
-                <span className="font-medium">{headerData.gender}</span>
-              </div>
-              <div className="bg-gray-50 p-3 rounded">
-                <span className="block text-sm text-gray-600">Quantity</span>
-                <span className="font-medium">{headerData.col}</span>
-              </div>
-            </div>
+    <div className="flex h-screen">
+      {/* Left Column */}
+      <div className="w-1/3 bg-gray-800 text-white flex flex-col gap-4 p-4">
+        {/* Section 1 */}
+        <div className="flex-1 bg-gray-900 rounded-lg shadow-md p-4">
+          <CreatedHeadersCard />
+        </div>
+        {/* Section 2 */}
+        <div className="flex-1 bg-gray-900 rounded-lg shadow-md p-4">
+          Section 2
+        </div>
+        {/* Section 3 */}
+        <div className="flex-1 bg-gray-900 rounded-lg shadow-md p-4">
+          Section 3
+        </div>
+      </div>
 
-            {/* Weight Section */}
-            <div className="space-y-4">
-              <div className="flex justify-between items-center p-4 bg-blue-50 rounded">
-                <span className="font-medium text-blue-800">
-                  Current Weight
-                </span>
-                <span className="text-2xl font-bold text-blue-800">
-                  0.00 kg
-                </span>
-              </div>
+      {/* Right Column */}
+      <div className="flex-1 flex flex-col">
+        {/* Top Section */}
+        <div className="flex-1 flex justify-center items-center border-b border-gray-300"></div>
 
-              <div className="flex gap-4">
-                <Button
-                  className="flex-1 bg-green-500 hover:bg-green-600"
-                  variant="default"
-                >
-                  Verify Weight
-                </Button>
-                <Button className="flex-1" variant="outline">
-                  Reset
-                </Button>
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+        {/* Bottom Section */}
+        <div className="flex-1 flex justify-center items-center">
+          <TeaLabel
+            data={{
+              productName: "",
+              innerCount: "",
+              netWeight: "",
+              grossWeight: "",
+              masterCartons: "",
+              status: "",
+              isFormValid: false,
+              onPrint: function (): void {
+                throw new Error("Function not implemented.");
+              },
+            }}
+          />
+        </div>
+      </div>
     </div>
   );
 };

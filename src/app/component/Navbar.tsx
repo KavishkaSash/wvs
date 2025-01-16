@@ -12,11 +12,11 @@ const Navbar = () => {
   ];
 
   return (
-    <div className="bg-gray-900 text-white p-4 fixed top-0 left-0 w-full shadow-lg z-50">
+    <div className="bg-gray-900 text-white p-4 shadow-lg w-full">
       <div className="max-w-5xl mx-auto flex items-center justify-between">
         {/* Logo or Branding */}
         <div className="text-lg font-semibold">
-          <Link href="/">MyApp</Link>
+          <Link href="/">WVS</Link>
         </div>
 
         {/* Navigation Tabs */}

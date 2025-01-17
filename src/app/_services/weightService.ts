@@ -19,8 +19,7 @@ export interface WeightHeadersResponse {
 
 export const weightService = {
   async getHeaders(): Promise<WeightHeadersResponse> {
-    
-    const response = await fetch(`api/weight/headers`);
+    const response = await fetch(`api/weight/getAllHeaders`);
 
     if (!response.ok) {
       throw new Error("Failed to fetch weight headers");

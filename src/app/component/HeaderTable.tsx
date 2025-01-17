@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import "tabulator-tables/dist/css/tabulator_materialize.min.css";
-
 import { TabulatorFull as Tabulator } from "tabulator-tables";
 
 interface TableComponentProps {
@@ -32,57 +31,64 @@ const TableComponent: React.FC<TableComponentProps> = ({
   onRowSelect,
 }) => {
   const tableRef = useRef<HTMLDivElement>(null);
+  const tableInstanceRef = useRef<Tabulator | null>(null);
   const [search, setSearch] = useState("");
-  const [tableInstance, setTableInstance] = useState<Tabulator | null>(null);
-  const [selectedItem, setSelectedItem] = useState<Record<string, any> | null>(
-    null
-  );
+  const [isInitialized, setIsInitialized] = useState(false);
 
-  const handleRowSelect = (rowData: Record<string, any>) => {
-    setSelectedItem(rowData);
-    onRowSelect(rowData);
-  };
-
-  const handleRemoveItem = () => {
-    setSelectedItem(null);
-  };
-
+  // Initialize table
   useEffect(() => {
-    if (tableRef.current) {
+    if (tableRef.current && !isInitialized) {
       const table = new Tabulator(tableRef.current, {
         data,
         columns,
-        layout: "fitColumns", // Automatically adjust column width
-        height, // Set the height of the table
-        pagination: true, // Enable local pagination
-        paginationSize: 5, // Number of rows per page
-        paginationSizeSelector: [5, 10, 20, 50], // Optional selector for page size
-        selectable: 1, // Allow only one row to be selected
+        layout: "fitColumns",
+        height,
+        pagination: true,
+        paginationSize: 5,
+        paginationSizeSelector: [5, 10, 20, 50],
+        selectable: 1,
       });
 
-      table.on("rowClick", (e, row) => {
-        handleRowSelect(row.getData());
+      // Add row click event handler
+      table.on("rowClick", function (e, row) {
+        onRowSelect(row.getData());
       });
 
-      setTableInstance(table);
-
-      return () => {
-        table.destroy();
-      };
+      tableInstanceRef.current = table;
+      setIsInitialized(true);
     }
-  }, [data, columns, height, onRowSelect]);
+  }, [columns, height, onRowSelect, data, isInitialized]);
 
+  // Handle search
   useEffect(() => {
-    if (tableInstance && search) {
-      tableInstance.setFilter((data: any) => {
-        return Object.values(data).some((value) =>
-          String(value).toLowerCase().includes(search.toLowerCase())
+    const table = tableInstanceRef.current;
+
+    if (table && search) {
+      table.setFilter((rowData: any) => {
+        const searchTerm = search.toLowerCase();
+        return Object.values(rowData).some((value) =>
+          String(value).toLowerCase().includes(searchTerm)
         );
       });
-    } else if (tableInstance) {
-      tableInstance.clearFilter(true);
+    } else if (table) {
+      table.clearFilter(true);
     }
-  }, [search, tableInstance]);
+  }, [search]);
+
+  // Update data only when necessary
+  useEffect(() => {
+    const table = tableInstanceRef.current;
+    if (table && isInitialized) {
+      table
+        .replaceData(data)
+        .then(() => {
+          // Data update successful
+        })
+        .catch((error) => {
+          console.error("Error updating table data:", error);
+        });
+    }
+  }, [data, isInitialized]);
 
   return (
     <div>

@@ -66,19 +66,15 @@ const Page: React.FC = () => {
     setSelectedRow(rowData);
   };
   const [data, setData] = useState<OrderData[]>([]);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        setLoading(true);
         const response = await ordersApi.getOrders();
         setData(response.data);
         console.log(response.data);
       } catch (error) {
         console.error("Error:", error);
-      } finally {
-        setLoading(false);
       }
     };
 

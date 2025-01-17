@@ -20,6 +20,20 @@ interface TeaLabelProps {
 export const TeaLabel: React.FC<TeaLabelProps> = ({ data }) => {
   const VERIFICATION_NUMBER = "123456";
 
+  const getStatusIcon = (status: "acceptable" | "rejected" | "") => {
+    if (status === "acceptable") {
+      return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" width="24" height="24" fill="black">
+           <path d="M438.6 105.4c12.5 12.5 12.5 32.8 0 45.3l-256 256c-12.5 12.5-32.8 12.5-45.3 0l-128-128c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0L160 338.7 393.4 105.4c12.5-12.5 32.8-12.5 45.3 0z"/>
+         </svg>`;
+    }
+    if (status === "rejected") {
+      return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" width="24" height="24" fill="black">
+           <path d="M342.6 150.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L192 210.7 86.6 105.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L146.7 256 41.4 361.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L192 301.3 297.4 406.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L237.3 256 342.6 150.6z"/>
+         </svg>`;
+    }
+    return "";
+  };
+
   const getCurrentDateTime = () => {
     const now = new Date();
     const day = String(now.getDate()).padStart(2, "0");
@@ -150,31 +164,11 @@ export const TeaLabel: React.FC<TeaLabelProps> = ({ data }) => {
         <div class="weight-row">
           <div>INNERS</div>
           <div>${data.innerCount || "36"}</div>
-        </div>
-        <div class="weight-row">
-          <div>NET(Kg)</div>
-          <div>${data.netWeight || "7.20"}</div>
-        </div>
-        <div class="weight-row">
-          <div>GROSS(Kg)</div>
-          <div>${data.grossWeight || "11.70"}</div>
-        </div>
-      </div>
-      
+        ${getStatusIcon(data.status)}
       <div class="verification-box">
           <div class="verification-number">${VERIFICATION_NUMBER}</div>
         <div class="status-mark">
-            ${
-              data.status === "acceptable"
-                ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" width="24" height="24" fill="black">
-           <path d="M438.6 105.4c12.5 12.5 12.5 32.8 0 45.3l-256 256c-12.5 12.5-32.8 12.5-45.3 0l-128-128c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0L160 338.7 393.4 105.4c12.5-12.5 32.8-12.5 45.3 0z"/>
-         </svg>`
-                : data.status === "rejected"
-                ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" width="24" height="24" fill="black">
-           <path d="M342.6 150.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L192 210.7 86.6 105.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L146.7 256 41.4 361.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L192 301.3 297.4 406.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L237.3 256 342.6 150.6z"/>
-         </svg>`
-                : ""
-            }
+        ${getStatusIcon(data.status)}
         </div>
       </div>
     </div>
@@ -209,7 +203,7 @@ export const TeaLabel: React.FC<TeaLabelProps> = ({ data }) => {
   };
 
   return (
-    <Card className="w-full max-w-full mx-auto">
+    <Card className="w-full max-w-full mx-auto rounded-none">
       <CardContent className="p-6">
         <div className="flex items-center justify-between mb-8">
           <h2 className="text-2xl font-bold text-gray-800">Label Preview</h2>
@@ -223,7 +217,7 @@ export const TeaLabel: React.FC<TeaLabelProps> = ({ data }) => {
         </div>
 
         {/* Label Preview with small padding */}
-        <div className="bg-white border border-gray-200 shadow-sm p-2 rounded-lg">
+        <div className="bg-white   shadow-sm p-2 rounded-lg">
           {/* Label Container with fixed aspect ratio */}
 
           {/* Label Content */}

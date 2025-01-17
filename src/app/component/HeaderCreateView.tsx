@@ -68,7 +68,7 @@ const HeaderCreateView: React.FC<HeaderCreateViewProps> = ({ selectedRow }) => {
               <div key={field.label} className="flex flex-col">
                 <span className="font-semibold text-lg text-gray-600">
                   {field.label}:{" "}
-                  <span className="text-gray-700">{field.value || "N/A"}</span>
+                  <span className="text-gray-700">{field.value ?? "N/A"}</span>
                 </span>
               </div>
             ))}

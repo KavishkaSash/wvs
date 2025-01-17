@@ -55,7 +55,7 @@ function WeightVerifyDisplay({
   }[status];
 
   return (
-    <div className="flex flex-col items-center justify-center p-6 rounded-lg shadow-lg max-w-full mx-auto space-y-6">
+    <div className="flex flex-col items-center justify-center p-6 rounded-lg shadow-lg max-w-full mx-auto space-y-6 border">
       <h1 className="text-2xl font-bold text-gray-800 mb-4 text-center">
         Weight Verification
       </h1>
@@ -64,7 +64,7 @@ function WeightVerifyDisplay({
         <InfoCard label="Line Number" value={lineNumber} />
         <InfoCard
           label="Product Name"
-          value={productName || "No product selected"}
+          value={productName ?? "No product selected"}
         />
         <InfoCard label="Standard Weight" value={`${standardWeight} kg`} />
       </div>

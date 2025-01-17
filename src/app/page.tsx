@@ -106,6 +106,11 @@ const Homepage = () => {
               standards of accuracy and reliability. <br />
               Developed By TeaTang SE TEAM
             </p>
+            <img
+              src="/Tea_Tang_-_HighRes_Logo2.png"
+              alt=""
+              className="h-10 justify-center mx-auto"
+            />
           </div>
         </div>
       </div>

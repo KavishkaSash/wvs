@@ -9,6 +9,7 @@ const Navbar = () => {
   const tabs = [
     { label: "Create Header", path: "/createheader" },
     { label: "Weight Verify", path: "/weightverify" },
+    { label: "Reports", path: "/#" },
   ];
 
   return (

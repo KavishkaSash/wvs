@@ -57,14 +57,6 @@ const WeightHeadersPage = () => {
     fetchWeightHeaders();
   }, [currentState]);
 
-  const handleStateFilter = (state: string | null) => {
-    if (state) {
-      router.push(`/weight?state=${state}`);
-    } else {
-      router.push("/weight");
-    }
-  };
-
   const handleRowSelect = (rowData: TableData) => {
     setSelectedRow(rowData);
   };
@@ -74,16 +66,6 @@ const WeightHeadersPage = () => {
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-2xl font-bold">Weight Headers</h1>
         <div className="flex gap-2">
-          <select
-            value={currentState || ""}
-            onChange={(e) => handleStateFilter(e.target.value || null)}
-            className="p-2 border rounded-md"
-          >
-            <option value="">All States</option>
-            <option value="draft">Draft</option>
-            <option value="confirmed">Confirmed</option>
-            <option value="cancelled">Cancelled</option>
-          </select>
           {isLoading && <div className="text-gray-500">Loading...</div>}
         </div>
       </div>

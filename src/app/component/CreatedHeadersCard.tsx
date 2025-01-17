@@ -1,48 +1,59 @@
 "use client";
+
 import React, { useEffect, useState } from "react";
+import { weightService, WeightHeader } from "@/app/_services/weightService";
 
-type HeaderData = {
-  id: number;
-  title: string;
-  description: string;
-};
+interface ScrollableSectionProps {
+  onCardClick?: (data: WeightHeader) => void;
+  currentState?: string;
+}
 
-// Mock Data Function (Replace with API call later)
-const fetchMockData = async () => {
-  return Array.from({ length: 20 }, (_, i) => ({
-    id: i + 1,
-    title: `Header ${i + 1}`,
-    description: `Description for header ${i + 1}`,
-  }));
-};
-
-const ScrollableSection = ({
+const ScrollableSection: React.FC<ScrollableSectionProps> = ({
   onCardClick,
-}: {
-  onCardClick?: (data: HeaderData) => void;
+  currentState,
 }) => {
-  const [headers, setHeaders] = useState<HeaderData[]>([]);
+  const [headers, setHeaders] = useState<WeightHeader[]>([]);
+  const [filteredHeaders, setFilteredHeaders] = useState<WeightHeader[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [filteredHeaders, setFilteredHeaders] = useState<HeaderData[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchData = async () => {
-      const data = await fetchMockData();
-      setHeaders(data);
-      setFilteredHeaders(data);
+    const fetchHeaders = async () => {
+      try {
+        setIsLoading(true);
+        const response = await weightService.getHeaders();
+        setHeaders(response.data);
+        setFilteredHeaders(response.data);
+        setError(null);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "An error occurred");
+        console.error("Error fetching weight headers:", err);
+      } finally {
+        setIsLoading(false);
+      }
     };
-    fetchData();
+
+    fetchHeaders();
   }, []);
 
   useEffect(() => {
     setFilteredHeaders(
       headers.filter(
         (header) =>
-          header.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          header.description.toLowerCase().includes(searchTerm.toLowerCase())
+          header.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          header.remark.toLowerCase().includes(searchTerm.toLowerCase())
       )
     );
   }, [searchTerm, headers]);
+
+  if (error) {
+    return (
+      <div className="p-4 text-red-500 bg-red-50 rounded-md">
+        Error loading headers: {error}
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col h-full">
@@ -57,10 +68,14 @@ const ScrollableSection = ({
       </div>
 
       <div
-        className="flex-1  rounded-lg  p-4 overflow-y-auto"
+        className="flex-1 rounded-lg p-4 overflow-y-auto"
         style={{ maxHeight: "80vh" }}
       >
-        {filteredHeaders.length === 0 ? (
+        {isLoading ? (
+          <div className="flex items-center justify-center h-32">
+            <div className="text-slate-600">Loading headers...</div>
+          </div>
+        ) : filteredHeaders.length === 0 ? (
           <p className="text-center text-slate-600">No headers found...</p>
         ) : (
           filteredHeaders.map((header) => (
@@ -69,10 +84,15 @@ const ScrollableSection = ({
               className="w-full text-left bg-white p-4 rounded-lg mb-4 shadow-sm hover:bg-gray-50 transition cursor-pointer"
               onClick={() => onCardClick?.(header)}
               onKeyDown={(e) => e.key === "Enter" && onCardClick?.(header)}
-              aria-label={`Select header: ${header.title}`}
+              aria-label={`Select header: ${header.name}`}
             >
-              <h3 className="font-semibold text-slate-800">{header.title}</h3>
-              <p className="text-sm text-slate-600">{header.description}</p>
+              <h3 className="font-semibold text-slate-800">{header.name}</h3>
+              <div className="text-sm text-slate-600">
+                <p>Order ID: {header.order_id}</p>
+                <p>Date: {new Date(header.datetime).toLocaleDateString()}</p>
+                <p>State: {header.state}</p>
+                <p>{header.remark}</p>
+              </div>
             </button>
           ))
         )}

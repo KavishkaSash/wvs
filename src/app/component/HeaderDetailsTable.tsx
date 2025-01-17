@@ -6,10 +6,10 @@ import { useSearchParams, useRouter } from "next/navigation";
 import HeaderCreateView from "./HeaderCreateView";
 import TableComponent from "./HeaderTable";
 import { weightService, WeightHeader } from "@/app/_services/weightService";
-import type { TableData } from "./HeaderCreateView";
+import { Header } from "../types";
 
 const WeightHeadersPage = () => {
-  const [selectedRow, setSelectedRow] = useState<TableData | null>(null);
+  const [selectedRow, setSelectedRow] = useState<Header | null>(null);
   const [weightHeaders, setWeightHeaders] = useState<WeightHeader[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -57,7 +57,7 @@ const WeightHeadersPage = () => {
     fetchWeightHeaders();
   }, [currentState]);
 
-  const handleRowSelect = (rowData: TableData) => {
+  const handleRowSelect = (rowData: Header) => {
     setSelectedRow(rowData);
   };
 

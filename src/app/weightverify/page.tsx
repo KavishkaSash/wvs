@@ -5,15 +5,12 @@ import { TeaLabel } from "../component/PrintPreview";
 import ScrollableSection from "../component/CreatedHeadersCard";
 import WeightVerifyDisplay from "../component/WieghtVerifyDisplay";
 import AddedLineTable from "../component/AddedLineTable";
-
-type HeaderData = {
-  id: number;
-  title: string;
-  description: string;
-};
+import { WeightHeader } from "../_services/weightService";
 
 const Page = () => {
-  const [selectedHeader, setSelectedHeader] = useState<HeaderData | null>(null);
+  const [selectedHeader, setSelectedHeader] = useState<WeightHeader | null>(
+    null
+  );
   const [verificationStatus, setVerificationStatus] = useState<
     "" | "acceptable" | "rejected"
   >("");
@@ -26,7 +23,7 @@ const Page = () => {
     }
   }, []);
 
-  const handleCardClick = (data: HeaderData) => {
+  const handleCardClick = (data: WeightHeader) => {
     setSelectedHeader(data);
   };
 
@@ -52,7 +49,7 @@ const Page = () => {
         {/* Top Section */}
         <div className="flex-1 flex justify-center items-center border-b border-gray-300">
           <WeightVerifyDisplay
-            productName={selectedHeader?.title}
+            productName={selectedHeader?.name}
             onWeightVerified={handleWeightVerified}
           />
         </div>
@@ -63,7 +60,7 @@ const Page = () => {
           <div className="flex-1">
             <TeaLabel
               data={{
-                productName: selectedHeader?.title || "",
+                productName: selectedHeader?.name || "",
                 innerCount: "",
                 netWeight: currentWeight.toString(),
                 grossWeight: "",

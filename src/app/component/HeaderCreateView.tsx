@@ -3,19 +3,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { useRouter } from "next/navigation";
 import React, { useCallback } from "react";
-
-export interface TableData {
-  id: number;
-  name: string;
-  progress: number;
-  gender: string;
-  rating: number;
-  col: string;
-  dob: string;
-}
+import { Header } from "../types";
 
 interface HeaderCreateViewProps {
-  selectedRow: TableData | null;
+  selectedRow: Header | null;
 }
 
 const HeaderCreateView: React.FC<HeaderCreateViewProps> = ({ selectedRow }) => {
@@ -34,24 +25,25 @@ const HeaderCreateView: React.FC<HeaderCreateViewProps> = ({ selectedRow }) => {
   }, [selectedRow, router]);
 
   const fields = [
-    { label: "Customer", value: selectedRow?.dob },
-    { label: "Product", value: selectedRow?.gender },
-    { label: "Finished Good Number", value: selectedRow?.gender },
-    { label: "Line No", value: selectedRow?.name },
-    { label: "Contract No", value: selectedRow?.progress },
-    { label: "Standard Wieght(Kg)", value: selectedRow?.progress },
+    { label: "Reference", value: selectedRow?.name },
+    { label: "Customer", value: selectedRow?.customer },
+    { label: "Product", value: selectedRow?.product },
+    { label: "Finished Good Number", value: selectedRow?.fg_no },
+    { label: "Line No", value: selectedRow?.order_line_id },
+    { label: "Contract No", value: selectedRow?.contract_no },
+    { label: "Standard Wieght(Kg)", value: selectedRow?.std_gross_weight },
     {
       label: "Number of Inners for Master carton",
-      value: selectedRow?.progress,
+      value: selectedRow?.inner,
     },
     {
       label: "Number of Masters for Order",
-      value: selectedRow?.progress,
+      value: selectedRow?.master,
     },
 
-    { label: "Gross Weight per Inner ", value: selectedRow?.rating },
-    { label: "Job No", value: selectedRow?.rating },
-    { label: "Tea Weight per Inne", value: selectedRow?.col },
+    { label: "Gross Weight per Inner ", value: selectedRow?.master_weight },
+    { label: "Job No", value: selectedRow?.job_no },
+    { label: "Tea Weight per Inne", value: selectedRow?.master_weight },
   ];
 
   return (

@@ -24,7 +24,18 @@ export type Header = {
   inner: number;
   master: number;
   master_weight: number;
-  standard_weight:number;
+
+  id: number;
+  name: string;
+  order_line_id: number;
+  order_id: number;
+  datetime: string;
+  product_id: number;
+  std_gross_weight: number;
+  total_gross_weight: number;
+  line_count: number;
+  state: "draft" | "confirmed" | "cancelled";
+  remark: string;
 };
 
 export type HeaderTable = {

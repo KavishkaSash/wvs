@@ -12,9 +12,25 @@ export interface WeightHeader {
   state: "draft" | "confirmed" | "cancelled";
   remark: string;
 }
+export interface WeightLine {
+  id: number;
+  datetime: string;
+  gross_weight: number;
+  header_id: number;
+  index_no: number;
+  remark: boolean;
+  status: string;
+}
 
+export interface WeightLineResponse {
+  data: WeightLine[];
+  status?: number;
+  message?: string;
+}
 export interface WeightHeadersResponse {
   data: WeightHeader[];
+  status?: number;
+  message?: string;
 }
 
 export const weightService = {
@@ -26,5 +42,24 @@ export const weightService = {
     }
 
     return response.json();
+  },
+  async getLinesById(id: number): Promise<WeightLineResponse> {
+    try {
+      const response = await fetch(`/api/weight/getHeaderLinesByID?id=${id}`);
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      return {
+        data,
+        status: response.status,
+        message: "Weight lines fetched successfully",
+      };
+    } catch (error) {
+      console.error("Error fetching weight lines:", error);
+      throw error;
+    }
   },
 };

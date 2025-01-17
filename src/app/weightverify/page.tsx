@@ -77,7 +77,7 @@ const Page = () => {
           {/* Right half - Table */}
           <div className="flex-1">
             <div className="bg-white shadow">
-              <AddedLineTable />
+              <AddedLineTable id={selectedHeader?.id ?? 0} />
             </div>
           </div>
         </div>

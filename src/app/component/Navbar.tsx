@@ -21,16 +21,18 @@ const Navbar = () => {
 
         {/* Navigation Tabs */}
         <div className="flex items-center">
-          <div className="bg-gray-100 rounded-full p-1 shadow-sm">
+          <div className="bg-gray-100 rounded-full shadow-sm overflow-hidden flex">
             {tabs.map((tab, index) => (
               <Link
                 key={tab.path}
                 href={tab.path}
-                className={`py-2 px-4 rounded-full text-sm font-medium transition-all duration-300 ease-in-out ${
+                className={`py-2 px-4 text-sm font-medium transition-all duration-300 ease-in-out ${
                   currentPath === tab.path
                     ? "bg-blue-500 text-white shadow-md"
                     : "text-gray-600 hover:bg-blue-100 hover:text-blue-600"
-                } ${index !== 0 ? "ml-2" : ""}`}
+                } ${index === 0 ? "rounded-l-full" : ""} ${
+                  index === tabs.length - 1 ? "rounded-r-full" : ""
+                }`}
               >
                 {tab.label}
               </Link>

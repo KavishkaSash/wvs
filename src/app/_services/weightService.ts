@@ -63,4 +63,36 @@ export const weightService = {
       throw error;
     }
   },
+  // POST request implementation
+  async createWeightLine(
+    headerId: number,
+    weightLine: Omit<WeightLine, "id">
+  ): Promise<WeightLineResponse> {
+    if (!headerId) {
+      throw new Error("Header ID is required");
+    }
+
+    try {
+      const response = await fetch(`/api/weight/lines?id=${headerId}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(weightLine), // Remove header_id from body since it's in URL
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(
+          errorData.message || `HTTP error! status: ${response.status}`
+        );
+      }
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error("Error creating weight line:", error);
+      throw error;
+    }
+  },
 };

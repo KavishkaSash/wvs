@@ -34,7 +34,7 @@ const WeightLinesTable: React.FC<WeightLinesTableProps> = ({ id }) => {
 
         // Process the data based on datetime
         if (response?.data && Array.isArray(response.data)) {
-          const sortedData: WeightDetails[] = response.data.sort(
+          const sortedData = [...response.data].sort(
             (a: WeightDetails, b: WeightDetails): number =>
               new Date(b.datetime).getTime() - new Date(a.datetime).getTime()
           );

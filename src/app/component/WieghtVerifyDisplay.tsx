@@ -22,7 +22,7 @@ type WeightVerifyDisplayProps = {
   header: {
     name?: string;
     order_line_id?: number;
-    std_gross_weigh?: number;
+    std_gross_weight?: number;
   };
   onWeightVerified?: (
     status: "" | "acceptable" | "rejected",
@@ -68,8 +68,7 @@ function WeightVerifyDisplay({
 }: Readonly<WeightVerifyDisplayProps>) {
   const [currentWeight, setCurrentWeight] = useState<number | null>(null);
   const [status, setStatus] = useState("pending");
-  const [lineNumber] = useState("LN-12345");
-  const [standardWeight] = useState(7.0);
+
   const [error, setError] = useState<string | null>(null);
   const [isPolling, setIsPolling] = useState(true);
   const [retryCount, setRetryCount] = useState(0);
@@ -79,7 +78,9 @@ function WeightVerifyDisplay({
 
   // Define acceptable weight range
   const MIN_WEIGHT = 5;
-  const MAX_WEIGHT = header.std_gross_weigh ? header.std_gross_weigh + 0.5 : 10;
+  const MAX_WEIGHT = header.std_gross_weight
+    ? header.std_gross_weight + 0.5
+    : 10;
   const MAX_RETRIES = 3;
   const RETRY_INTERVAL = 5000; // 5 seconds between retries
 
@@ -170,7 +171,7 @@ function WeightVerifyDisplay({
         <InfoCard
           label="Standard Weight"
           value={`${
-            header.std_gross_weigh ? header.std_gross_weigh + " kg" : "N/A"
+            header.std_gross_weight ? header.std_gross_weight + " kg" : "N/A"
           }`}
         />
       </div>

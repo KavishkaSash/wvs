@@ -7,6 +7,7 @@ import { TeaLabel } from "./PrintPreview";
 
 // Types with proper validation ranges
 interface FormData {
+  id: number;
   productName: string;
   innerCount: string;
   netWeight: string;
@@ -44,6 +45,7 @@ const FormField: React.FC<{
 // Main Component
 const WeightVerification: React.FC = () => {
   const [formData, setFormData] = useState<FormData>({
+    id: 0,
     productName: "",
     innerCount: "",
     netWeight: "",

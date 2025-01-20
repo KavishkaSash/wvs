@@ -49,7 +49,7 @@ const Page = () => {
         {/* Top Section */}
         <div className="flex-1 flex justify-center items-center border-b border-gray-300">
           <WeightVerifyDisplay
-            productName={selectedHeader?.name}
+            header={selectedHeader || { name: undefined }}
             onWeightVerified={handleWeightVerified}
           />
         </div>

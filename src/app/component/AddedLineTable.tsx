@@ -1,5 +1,3 @@
-"use client";
-
 import React, { useEffect, useState } from "react";
 import { weightService } from "@/app/_services/weightService";
 
@@ -7,7 +5,7 @@ interface WeightLinesTableProps {
   id: number;
 }
 
-interface WeightLine {
+interface WeightDetails {
   id: number;
   datetime: string;
   gross_weight: number;
@@ -18,14 +16,14 @@ interface WeightLine {
 }
 
 const WeightLinesTable: React.FC<WeightLinesTableProps> = ({ id }) => {
-  const [data, setData] = useState<WeightLine[]>([]);
+  const [data, setData] = useState<WeightDetails[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchWeightLines = async () => {
       if (!id) {
-        setError("Please select a header");
+        setError("Please select a valid header ID.");
         setIsLoading(false);
         return;
       }
@@ -34,14 +32,23 @@ const WeightLinesTable: React.FC<WeightLinesTableProps> = ({ id }) => {
         setIsLoading(true);
         const response = await weightService.getLinesById(id);
 
-        // Ensure response is an array
-        const weightLines = response.data[0] ? response.data : [];
-        setData(weightLines);
-        console.log(weightLines); // Logs the correctly extracted array
-        setError(null);
+        // Process the data based on datetime
+        if (response?.data && Array.isArray(response.data)) {
+          const sortedData: WeightDetails[] = response.data.sort(
+            (a: WeightDetails, b: WeightDetails): number =>
+              new Date(b.datetime).getTime() - new Date(a.datetime).getTime()
+          );
+          setData(sortedData);
+          setError(null);
+        } else {
+          setError("Invalid data format received");
+          setData([]);
+        }
       } catch (err) {
-        setError(err instanceof Error ? err.message : "An error occurred");
         console.error("Error fetching weight lines:", err);
+        setError(
+          err instanceof Error ? err.message : "An unexpected error occurred"
+        );
       } finally {
         setIsLoading(false);
       }
@@ -71,47 +78,26 @@ const WeightLinesTable: React.FC<WeightLinesTableProps> = ({ id }) => {
       <table className="min-w-full divide-y divide-gray-200">
         <thead className="bg-gray-50">
           <tr>
-            <th
-              scope="col"
-              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-            >
-              ID
-            </th>
-            <th
-              scope="col"
-              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-            >
-              Header ID
-            </th>
-            <th
-              scope="col"
-              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-            >
-              Index No
-            </th>
-            <th
-              scope="col"
-              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-            >
-              Gross Weight
-            </th>
-            <th
-              scope="col"
-              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-            >
-              Status
-            </th>
-            <th
-              scope="col"
-              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-            >
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
               Date & Time
             </th>
-            <th
-              scope="col"
-              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-            >
-              Remarks
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              ID
+            </th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Header ID
+            </th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Index No
+            </th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Gross Weight
+            </th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Status
+            </th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Remark
             </th>
           </tr>
         </thead>
@@ -125,6 +111,16 @@ const WeightLinesTable: React.FC<WeightLinesTableProps> = ({ id }) => {
           ) : (
             data.map((line) => (
               <tr key={line.id} className="hover:bg-gray-50">
+                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                  {new Date(line.datetime).toLocaleString("en-GB", {
+                    day: "2-digit",
+                    month: "2-digit",
+                    year: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    second: "2-digit",
+                  })}
+                </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                   {line.id}
                 </td>
@@ -147,9 +143,6 @@ const WeightLinesTable: React.FC<WeightLinesTableProps> = ({ id }) => {
                   >
                     {line.status}
                   </span>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {new Date(line.datetime).toLocaleString("en-GB")}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                   {line.remark ? (

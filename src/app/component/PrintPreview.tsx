@@ -32,102 +32,84 @@ export const TeaLabel: React.FC<TeaLabelProps> = ({ data }) => {
     return `${day}-${month}-${year} ${formatHours}.${minutes} ${period}`;
   };
 
-  const handlePrint = () => {
-    const printWindow = window.open("", "_blank");
+  const handleDirectPrint = () => {
+    const printWindow = window.open("", "", "width=400,height=300");
     if (!printWindow) return;
 
-    // Print styles remain the same as they're for the actual label printing
     const style = `
-  @page {
-  size: 75mm 50mm;
-  margin: 0;
-  overflow: hidden;
-}
-@media print {
-  html, body {
-    margin: 0;
-    padding: 0;
-    width: 75mm;
-    height: 50mm;
-    overflow: hidden;
-  }
-  .print-label {
-    width: 75mm;
-    height: 50mm;
-        padding: 2mm;
-    box-sizing: border-box;
-        font-family: poppins;
-        font-size: 10pt;
-        line-height: 1.2;
-    position: relative;
-    page-break-after: always;
-    overflow: hidden;
-  }
-  .header {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 1mm; /* Reduced margin */
-  }
-    .date{
-      font-size:8pt;
-    }
-  .product-info {
-    font-weight: bold;
-        margin-bottom: 3mm;
-  }
-  .details {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 1.5mm; /* Reduced margin */
-  }
-  .weight-info {
-    width: 30mm; /* Adjusted width */
-  }
-  .weight-row {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 0.8mm; /* Reduced spacing */
-  }
-  .verification-box {
-      border: 0.4mm solid #000;
-      width: 20mm;
-      height: 20mm;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-start;
-      align-items: center;
-      font-weight: 600;
-      margin-top: 1.5mm;
-      background-color: #fafafa;
-      position: relative;
-      padding-top: 2mm;
-    }
-  .verification-number {
-      font-size: 5pt;
-      position: absolute;
-      top: 1mm;
-      left: 50%;
-      transform: translateX(-50%);
-      color: #333;
-    }
-    .status-mark {
-      flex-grow: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .status-mark svg {
-      width: 16mm;
-      height: 16mm;
-    }
-  .carton-info {
-    display: flex;
-        gap: 3mm; /* Adjusted space to reduce gap */
-        margin-top: 0.5mm; /* Reduced margin for better alignment */
-        font-size: 12pt; /* Slightly increased font size for better readability */
-  }
-}
-
+   @page {
+       size: 75mm 50mm;
+       margin: 0;
+       overflow: hidden;
+   }
+   html, body {
+       margin: 0.25mm;
+       padding: 0;
+       width: 75mm;
+       height: 50mm;
+       overflow: hidden;
+   }
+   .print-label {
+       width: 75mm;
+       height: 50mm;
+       padding: 2mm; /* Reduced padding for more compactness */
+       box-sizing: border-box;
+       font-family: poppins, sans-serif;
+       font-size: 10.5pt;
+       line-height: 1.1;
+       position: relative;
+       page-break-inside: avoid; /* Prevent breaking inside */
+   }
+   .header {
+   font-size: 12pt;
+       display: flex;
+       justify-content: space-between;
+       margin-bottom: 0.5mm; /* Reduced margin for compactness */
+   }
+   .date {
+       font-size: 8.5pt;
+   }
+   .product-info {
+       font-weight: bold;
+       margin: 0.5mm 0; /* Reduced margin for compactness */
+   }
+   .details {
+       display: flex;
+       justify-content: space-between;
+       margin-top: 1.5mm; /* Moved details slightly closer */
+   }
+   .weight-info {
+       width: 32mm;
+       margin-top: 1mm; /* Moved weight info slightly down */
+   }
+   .weight-row {
+       display: flex;
+       justify-content: space-between;
+       margin-bottom: 0.25mm; /* Reduced margin for compactness */
+   }
+   .verification-box {
+       border: 0.5mm solid #000;
+       width: 26mm; /* Maintained increased size */
+       height: 26mm;
+       display: flex;
+       flex-direction: column;
+       justify-content: center;
+       align-items: center;
+       background-color: #fafafa;
+       margin-right: 1mm;
+   }
+   .verification-number {
+       font-size: 6.5pt;
+       margin-top: -2mm;
+       text-align: center;
+   }
+   .carton-info {
+       display: flex;
+       gap: 2mm;
+       font-size: 12pt;
+       align-items: center;
+       margin-top: -1mm; /* Moved carton info slightly up */
+   }
 `;
 
     const content = `
@@ -135,8 +117,8 @@ export const TeaLabel: React.FC<TeaLabelProps> = ({ data }) => {
     <div class="header">
       <div style="font-weight: bold;">E24/00845</div>
       <div class='date' style="display: flex; gap: 4mm;">
-        <div>1</div>
-        <div>${getCurrentDateTime()}</div>
+        <div style="font-weight: bold;" >1</div>
+        <div style="font-weight: bold;">${getCurrentDateTime()}</div>
       </div>
     </div>
     
@@ -162,19 +144,19 @@ export const TeaLabel: React.FC<TeaLabelProps> = ({ data }) => {
       </div>
       
       <div class="verification-box">
-          <div class="verification-number">${VERIFICATION_NUMBER}</div>
+        <div class="verification-number">${VERIFICATION_NUMBER}</div>
         <div class="status-mark">
-            ${
-              data.status === "acceptable"
-                ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" width="24" height="24" fill="black">
-           <path d="M438.6 105.4c12.5 12.5 12.5 32.8 0 45.3l-256 256c-12.5 12.5-32.8 12.5-45.3 0l-128-128c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0L160 338.7 393.4 105.4c12.5-12.5 32.8-12.5 45.3 0z"/>
-         </svg>`
-                : data.status === "rejected"
-                ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" width="24" height="24" fill="black">
-           <path d="M342.6 150.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L192 210.7 86.6 105.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L146.7 256 41.4 361.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L192 301.3 297.4 406.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L237.3 256 342.6 150.6z"/>
-         </svg>`
-                : ""
-            }
+          ${
+            data.status === "acceptable"
+              ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" width="12mm" height="12mm" fill="black">
+                  <path d="M438.6 105.4c12.5 12.5 12.5 32.8 0 45.3l-256 256c-12.5 12.5-32.8 12.5-45.3 0l-128-128c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0L160 338.7 393.4 105.4c12.5-12.5 32.8-12.5 45.3 0z"/>
+                </svg>`
+              : data.status === "rejected"
+              ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" width="12mm" height="12mm" fill="black">
+                  <path d="M342.6 150.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L192 210.7 86.6 105.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L146.7 256 41.4 361.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L192 301.3 297.4 406.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L237.3 256 342.6 150.6z"/>
+                </svg>`
+              : ""
+          }
         </div>
       </div>
     </div>
@@ -187,23 +169,23 @@ export const TeaLabel: React.FC<TeaLabelProps> = ({ data }) => {
 `;
 
     printWindow.document.write(`
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <title>Tea Label</title>
-          <style>${style}</style>
-        </head>
-        <body>
-          ${content}
-          <script>
-            window.onload = () => {
-              window.print();
-              setTimeout(() => window.close(), 500);
-            };
-          </script>
-        </body>
-      </html>
-    `);
+  <!DOCTYPE html>
+  <html>
+    <head>
+      <title>Tea Label</title>
+      <style>${style}</style>
+    </head>
+    <body>
+      ${content}
+      <script>
+        window.onload = function() {
+          window.print();
+          setTimeout(function() { window.close(); }, 500);
+        };
+      </script>
+    </body>
+  </html>
+`);
 
     printWindow.document.close();
   };
@@ -214,7 +196,7 @@ export const TeaLabel: React.FC<TeaLabelProps> = ({ data }) => {
         <div className="flex items-center justify-between mb-8">
           <h2 className="text-2xl font-bold text-gray-800">Label Preview</h2>
           <Button
-            onClick={handlePrint}
+            onClick={handleDirectPrint}
             className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md"
           >
             <Printer className="w-4 h-4 mr-2" />
@@ -225,8 +207,6 @@ export const TeaLabel: React.FC<TeaLabelProps> = ({ data }) => {
         {/* Label Preview with small padding */}
         <div className="bg-white border border-gray-200 shadow-sm p-2 rounded-lg">
           {/* Label Container with fixed aspect ratio */}
-
-          {/* Label Content */}
           <div
             className="bg-white border border-gray-300 rounded-lg justify-center mx-auto"
             style={{ width: "75mm", height: "50mm", padding: "1mm" }}

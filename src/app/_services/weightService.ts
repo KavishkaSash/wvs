@@ -51,7 +51,8 @@ export const weightService = {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      const data = await response.json();
+      const res = await response.json();
+      const data = res.data;
       return {
         data,
         status: response.status,

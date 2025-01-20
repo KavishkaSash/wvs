@@ -60,6 +60,7 @@ const Page = () => {
           <div className="flex-1">
             <TeaLabel
               data={{
+                id: selectedHeader?.id || 0,
                 productName: selectedHeader?.name || "",
                 innerCount: "",
                 netWeight: currentWeight.toString(),

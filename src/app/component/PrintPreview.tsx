@@ -1,12 +1,20 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Printer } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import { weightService } from "@/app/_services/weightService";
 
-// Assuming `createWeightLine` is imported from the relevant API service
-import { weightService } from "@/app/_services/weightService"; // Adjust this import to match your actual service
+interface WeightLine {
+  gross_weight: number;
+  datetime: string;
+  status: "acceptable" | "rejected" | "";
+  remark: boolean;
+  inner_count: number;
+  net_weight: number;
+  index_no: number;
+}
 
 interface TeaLabelProps {
   data: {
@@ -22,9 +30,26 @@ interface TeaLabelProps {
   };
 }
 
+// async function createWeightLine(headerId: number, weightLine: WeightLine) {
+//   const response = await fetch(`/api/weight-lines/${headerId}`, {
+//     method: "POST",
+//     headers: {
+//       "Content-Type": "application/json",
+//     },
+//     body: JSON.stringify(weightLine),
+//   });
+
+//   if (!response.ok) {
+//     const errorData = await response.json();
+//     throw new Error(errorData.message || "Failed to save weight data");
+//   }
+
+//   return await response.json();
+// }
+
 export const TeaLabel: React.FC<TeaLabelProps> = ({ data }) => {
+  const [isProcessing, setIsProcessing] = useState(false);
   const VERIFICATION_NUMBER = "123456";
-  console.log(data.id, data.grossWeight);
 
   const getCurrentDateTime = () => {
     const now = new Date();
@@ -37,211 +62,238 @@ export const TeaLabel: React.FC<TeaLabelProps> = ({ data }) => {
     const formatHours = hours % 12 || 12;
     return `${day}-${month}-${year} ${formatHours}.${minutes} ${period}`;
   };
-
-  const savePrintData = async () => {
+  console.log(data);
+  const validateData = () => {
     if (!data.id) {
-      toast({
-        title: "Error",
-        description: "Missing header ID",
-        variant: "destructive",
-      });
-      return;
+      throw new Error("Missing header ID");
     }
+    if (!data.grossWeight || isNaN(parseFloat(data.grossWeight))) {
+      throw new Error("Invalid gross weight");
+    }
+    if (!data.netWeight || isNaN(parseFloat(data.netWeight))) {
+      throw new Error("Invalid net weight");
+    }
+    if (!data.innerCount || isNaN(parseInt(data.innerCount))) {
+      throw new Error("Invalid inner count");
+    }
+    if (!data.status) {
+      throw new Error("Status is required");
+    }
+  };
+
+  const handlePrintDocument = () => {
+    return new Promise<void>((resolve, reject) => {
+      try {
+        const printWindow = window.open("", "", "width=400,height=300");
+        if (!printWindow) {
+          throw new Error("Failed to open print window");
+        }
+
+        const style = `
+          @page {
+            size: 75mm 50mm;
+            margin: 0;
+            overflow: hidden;
+          }
+          html, body {
+            margin: 0.25mm;
+            padding: 0;
+            width: 75mm;
+            height: 50mm;
+            overflow: hidden;
+          }
+          .print-label {
+            width: 75mm;
+            height: 50mm;
+            padding: 2mm;
+            box-sizing: border-box;
+            font-family: poppins, sans-serif;
+            font-size: 10.5pt;
+            line-height: 1.1;
+            position: relative;
+            page-break-inside: avoid;
+          }
+          .header {
+            font-size: 12pt;
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5mm;
+          }
+          .date {
+            font-size: 8.5pt;
+          }
+          .product-info {
+            font-weight: bold;
+            margin: 0.5mm 0;
+          }
+          .details {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 1.5mm;
+          }
+          .weight-info {
+            width: 32mm;
+            margin-top: 1mm;
+          }
+          .weight-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.25mm;
+          }
+          .verification-box {
+            border: 0.5mm solid #000;
+            width: 26mm;
+            height: 26mm;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background-color: #fafafa;
+            margin-right: 1mm;
+          }
+          .verification-number {
+            font-size: 6.5pt;
+            margin-top: -2mm;
+            text-align: center;
+          }
+          .carton-info {
+            display: flex;
+            gap: 2mm;
+            font-size: 12pt;
+            align-items: center;
+            margin-top: -1mm;
+          }
+        `;
+
+        const content = `
+          <div class="print-label">
+            <div class="header">
+              <div style="font-weight: bold;">E24/00845</div>
+              <div class='date' style="display: flex; gap: 4mm;">
+                <div style="font-weight: bold;">1</div>
+                <div style="font-weight: bold;">${getCurrentDateTime()}</div>
+              </div>
+            </div>
+            <div class="product-info">
+              <div>${data.productName}</div>
+              <div>${data.innerCount}x100x2G TEA</div>
+            </div>
+            <div class="details" style="font-weight: bold;">
+              <div class="weight-info">
+                <div class="weight-row">
+                  <div>INNERS</div>
+                  <div>${data.innerCount}</div>
+                </div>
+                <div class="weight-row">
+                  <div>NET(Kg)</div>
+                  <div>${data.netWeight}</div>
+                </div>
+                <div class="weight-row">
+                  <div>GROSS(Kg)</div>
+                  <div>${data.grossWeight}</div>
+                </div>
+              </div>
+              <div class="verification-box">
+                <div class="verification-number">${VERIFICATION_NUMBER}</div>
+                <div class="status-mark">
+                  ${
+                    data.status === "acceptable"
+                      ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" width="12mm" height="12mm" fill="black">
+                        <path d="M438.6 105.4c12.5 12.5 12.5 32.8 0 45.3l-256 256c-12.5 12.5-32.8 12.5-45.3 0l-128-128c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0L160 338.7 393.4 105.4c12.5-12.5 32.8-12.5 45.3 0z"/>
+                      </svg>`
+                      : data.status === "rejected"
+                      ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" width="12mm" height="12mm" fill="black">
+                        <path d="M342.6 150.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L192 210.7 86.6 105.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L146.7 256 41.4 361.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L192 301.3 297.4 406.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L237.3 256 342.6 150.6z"/>
+                      </svg>`
+                      : ""
+                  }
+                </div>
+              </div>
+            </div>
+            <div class="carton-info">
+              <div style="font-weight: bold;">CARTON NO</div>
+              <div style="font-weight: bold;">${data.masterCartons}</div>
+            </div>
+          </div>
+        `;
+
+        printWindow.document.write(`
+          <!DOCTYPE html>
+          <html>
+            <head>
+              <title>Tea Label</title>
+              <style>${style}</style>
+            </head>
+            <body>
+              ${content}
+              <script>
+                window.onload = function() {
+                  window.print();
+                  setTimeout(function() { 
+                    window.close();
+                    window.opener.postMessage('printComplete', '*');
+                  }, 500);
+                };
+              </script>
+            </body>
+          </html>
+        `);
+
+        printWindow.document.close();
+
+        // Listen for the print completion message
+        window.addEventListener("message", function handler(event) {
+          if (event.data === "printComplete") {
+            window.removeEventListener("message", handler);
+            resolve();
+          }
+        });
+      } catch (error) {
+        reject(error);
+      }
+    });
+  };
+
+  const handleProcess = async () => {
+    if (isProcessing) return;
+
+    setIsProcessing(true);
     try {
-      const weightLine = {
+      // 1. Validate data
+      validateData();
+
+      // 2. Prepare weight line data
+      const weightLine: WeightLine = {
         gross_weight: parseFloat(data.grossWeight),
         datetime: new Date().toISOString().slice(0, 19).replace("T", " "),
         status: data.status,
-        remark: true, // Changed to boolean as per WeightLine type
+        remark: true,
         inner_count: parseInt(data.innerCount),
         net_weight: parseFloat(data.netWeight),
-        header_id: data.id,
-        index_no: 1, // You might want to calculate this value based on your business logic
+        index_no: 1,
       };
 
-      // Call createWeightLine with the header_id and weightLine data
+      // 3. Send API request
       await weightService.createWeightLine(data.id, weightLine);
 
-      // After successful API call, trigger the onPrint callback from the parent component
-      data.onPrint();
+      // 4. Handle printing
+      await handlePrintDocument();
 
+      // 5. Call onPrint callback and show success message
+      data.onPrint();
       toast({
         title: "Success",
         description: "Label printed and data saved successfully",
       });
-    } catch (error) {
-      console.error("Error saving print data:", error);
+    } catch (error: any) {
+      console.error("Process failed:", error);
       toast({
         title: "Error",
-        description: "Failed to save print data",
+        description: error.message || "Process failed",
         variant: "destructive",
       });
-      throw error;
-    }
-  };
-
-  const handleDirectPrint = async () => {
-    try {
-      await savePrintData();
-
-      const printWindow = window.open("", "", "width=400,height=300");
-      if (!printWindow) return;
-
-      const style = `
-        @page {
-          size: 75mm 50mm;
-          margin: 0;
-          overflow: hidden;
-        }
-        html, body {
-          margin: 0.25mm;
-          padding: 0;
-          width: 75mm;
-          height: 50mm;
-          overflow: hidden;
-        }
-        .print-label {
-          width: 75mm;
-          height: 50mm;
-          padding: 2mm;
-          box-sizing: border-box;
-          font-family: poppins, sans-serif;
-          font-size: 10.5pt;
-          line-height: 1.1;
-          position: relative;
-          page-break-inside: avoid;
-        }
-        .header {
-          font-size: 12pt;
-          display: flex;
-          justify-content: space-between;
-          margin-bottom: 0.5mm;
-        }
-        .date {
-          font-size: 8.5pt;
-        }
-        .product-info {
-          font-weight: bold;
-          margin: 0.5mm 0;
-        }
-        .details {
-          display: flex;
-          justify-content: space-between;
-          margin-top: 1.5mm;
-        }
-        .weight-info {
-          width: 32mm;
-          margin-top: 1mm;
-        }
-        .weight-row {
-          display: flex;
-          justify-content: space-between;
-          margin-bottom: 0.25mm;
-        }
-        .verification-box {
-          border: 0.5mm solid #000;
-          width: 26mm;
-          height: 26mm;
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          align-items: center;
-          background-color: #fafafa;
-          margin-right: 1mm;
-        }
-        .verification-number {
-          font-size: 6.5pt;
-          margin-top: -2mm;
-          text-align: center;
-        }
-        .carton-info {
-          display: flex;
-          gap: 2mm;
-          font-size: 12pt;
-          align-items: center;
-          margin-top: -1mm;
-        }
-      `;
-
-      const content = `
-        <div class="print-label">
-          <div class="header">
-            <div style="font-weight: bold;">E24/00845</div>
-            <div class='date' style="display: flex; gap: 4mm;">
-              <div style="font-weight: bold;" >1</div>
-              <div style="font-weight: bold;">${getCurrentDateTime()}</div>
-            </div>
-          </div>
-          <div class="product-info">
-            <div>${data.productName || "SUWALIF PUR CEY BLACK TEA"}</div>
-            <div>${data.innerCount || "36"}x100x2G TEA</div>
-          </div>
-          <div class="details" style="font-weight: bold;">
-            <div class="weight-info">
-              <div class="weight-row">
-                <div>INNERS</div>
-                <div>${data.innerCount || "36"}</div>
-              </div>
-              <div class="weight-row">
-                <div>NET(Kg)</div>
-                <div>${data.netWeight || "7.20"}</div>
-              </div>
-              <div class="weight-row">
-                <div>GROSS(Kg)</div>
-                <div>${data.grossWeight || "11.70"}</div>
-              </div>
-            </div>
-            <div class="verification-box">
-              <div class="verification-number">${VERIFICATION_NUMBER}</div>
-              <div class="status-mark">
-                ${
-                  data.status === "acceptable"
-                    ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" width="12mm" height="12mm" fill="black">
-                      <path d="M438.6 105.4c12.5 12.5 12.5 32.8 0 45.3l-256 256c-12.5 12.5-32.8 12.5-45.3 0l-128-128c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0L160 338.7 393.4 105.4c12.5-12.5 32.8-12.5 45.3 0z"/>
-                    </svg>`
-                    : data.status === "rejected"
-                    ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" width="12mm" height="12mm" fill="black">
-                      <path d="M342.6 150.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L192 210.7 86.6 105.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L146.7 256 41.4 361.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L192 301.3 297.4 406.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L237.3 256 342.6 150.6z"/>
-                    </svg>`
-                    : ""
-                }
-              </div>
-            </div>
-          </div>
-          <div class="carton-info">
-            <div style="font-weight: bold;">CARTON NO</div>
-            <div style="font-weight: bold;">${data.masterCartons || "115"}</div>
-          </div>
-        </div>
-      `;
-
-      printWindow.document.write(`
-        <!DOCTYPE html>
-        <html>
-          <head>
-            <title>Tea Label</title>
-            <style>${style}</style>
-          </head>
-          <body>
-            ${content}
-            <script>
-              window.onload = function() {
-                window.print();
-                setTimeout(function() { window.close(); }, 500);
-              };
-            </script>
-          </body>
-        </html>
-      `);
-
-      printWindow.document.close();
-    } catch (error) {
-      console.error("Print process failed:", error);
-      toast({
-        title: "Error",
-        description: "Print process failed",
-        variant: "destructive",
-      });
+    } finally {
+      setIsProcessing(false);
     }
   };
 
@@ -251,11 +303,12 @@ export const TeaLabel: React.FC<TeaLabelProps> = ({ data }) => {
         <div className="flex items-center justify-between mb-8">
           <h2 className="text-2xl font-bold text-gray-800">Label Preview</h2>
           <Button
-            onClick={handleDirectPrint}
+            onClick={handleProcess}
+            disabled={isProcessing}
             className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md"
           >
             <Printer className="w-4 h-4 mr-2" />
-            Print Label
+            {isProcessing ? "Processing..." : "Print Label"}
           </Button>
         </div>
 
@@ -279,9 +332,9 @@ export const TeaLabel: React.FC<TeaLabelProps> = ({ data }) => {
 
             {/* Product Info */}
             <div className="font-mono font-bold text-sm text-gray-800 mb-3">
-              <div>{data.productName || "SUWALIF PUR CEY BLACK TEA"}</div>
+              <div>{data.productName}</div>
               <div className="text-sm text-gray-600">
-                {`${data.innerCount || "36"}x100x2G TEA`}
+                {`${data.innerCount}x100x2G TEA`}
               </div>
             </div>
 
@@ -292,26 +345,26 @@ export const TeaLabel: React.FC<TeaLabelProps> = ({ data }) => {
                 <div className="flex justify-between gap-4">
                   <span>INNERS</span>
                   <span className="font-semibold text-gray-600">
-                    {data.innerCount || "36"}
+                    {data.innerCount}
                   </span>
                 </div>
                 <div className="flex justify-between gap-4">
                   <span>NET(Kg)</span>
                   <span className="font-semibold text-gray-600">
-                    {data.netWeight || "7.20"}
+                    {data.netWeight}
                   </span>
                 </div>
                 <div className="flex justify-between gap-4">
                   <span>GROSS(Kg)</span>
                   <span className="font-semibold text-gray-600">
-                    {data.grossWeight || "11.70"}
+                    {data.grossWeight}
                   </span>
                 </div>
               </div>
 
               {/* Verification Box */}
               <div className="border-2 border-gray-800 w-16 h-16 rounded-lg flex flex-col items-center justify-center bg-gray-50">
-                <span className="font-mono font-bold text-sm text-gray-700 mb-1">
+                <span className="font-mono font-bold text-xs text-gray-700 mb-1">
                   {VERIFICATION_NUMBER}
                 </span>
                 {data.status && (
@@ -332,7 +385,7 @@ export const TeaLabel: React.FC<TeaLabelProps> = ({ data }) => {
             <div className="flex gap-4 mt-3 font-mono text-sm text-gray-800">
               <span className="font-semibold">CARTON NO</span>
               <span className="text-gray-600 font-semibold">
-                {data.masterCartons || "115"}
+                {data.masterCartons}
               </span>
             </div>
           </div>

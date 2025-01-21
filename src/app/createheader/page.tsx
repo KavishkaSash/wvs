@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import HeaderDetailsTable from "../component/HeaderDetailsTable";
 
 interface Props {}
@@ -7,7 +8,9 @@ interface Props {}
 const Page: React.FC<Props> = () => {
   return (
     <div>
-      <HeaderDetailsTable />
+      <Suspense fallback={<div>Loading...</div>}>
+        <HeaderDetailsTable />
+      </Suspense>
     </div>
   );
 };

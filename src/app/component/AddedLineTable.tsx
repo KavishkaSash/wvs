@@ -100,11 +100,23 @@ const AddedLineTable = forwardRef<
   return (
     <Card className="w-full">
       <CardHeader>
-        <CardTitle>Weight History</CardTitle>
+        <div className="flex items-center justify-between">
+          <CardTitle>Weight History</CardTitle>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={fetchWeightLines}
+            disabled={isLoading}
+          >
+            <RefreshCcw
+              className={`h-4 w-4 mr-2 ${isLoading ? "animate-spin" : ""}`}
+            />
+            Refresh
+          </Button>
+        </div>
       </CardHeader>
       <CardContent className="p-6 mt-0">
         <div className="space-y-1">
-          <div className="flex justify-end"></div>
           {isLoading ? (
             <div className="flex justify-center items-center p-8">
               <div className="animate-pulse text-gray-600">Loading...</div>

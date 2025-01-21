@@ -7,7 +7,7 @@ import { Printer, RefreshCcw } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { weightService } from "@/app/_services/weightService";
-import AddedLineTable from "../component/AddedLineTable";
+
 // Types and Interfaces
 type Status = "acceptable" | "rejected" | "";
 type WeightLineStatus = "valid" | "invalid" | "" | "draft";

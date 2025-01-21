@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import HeaderCreateView from "./HeaderCreateView";
 import TableComponent from "./HeaderTable";
 import { weightService, WeightHeader } from "@/app/_services/weightService";
@@ -15,7 +15,7 @@ const WeightHeadersPage = () => {
   const [error, setError] = useState<string | null>(null);
 
   const searchParams = useSearchParams();
-  const router = useRouter();
+  
   const currentState = searchParams.get("state");
 
   const columns = [

@@ -46,12 +46,28 @@ interface TeaLabelProps {
 }
 
 // Constants
-const VERIFICATION_NUMBER = "123456";
+const VERIFICATION_NUMBER = generateUniqueId();
 const PRINT_WINDOW_SETTINGS = "width=400,height=300";
 const PRINT_DIMENSIONS = {
   width: "75mm",
   height: "50mm",
 };
+function generateUniqueId(): string {
+  // Get current timestamp in milliseconds
+  const timestamp = Date.now();
+
+  // Add a random component
+  const random = Math.floor(Math.random() * 1000);
+
+  // Combine timestamp and random number
+  const combined = `${timestamp}${random}`;
+
+  // Convert to base-36 and take last 6 characters
+  const uniqueId = parseInt(combined).toString(36).slice(-6).toUpperCase();
+
+  // Pad with random numbers if needed
+  return uniqueId.padStart(6, Math.floor(Math.random() * 10).toString());
+}
 
 // Utility Functions
 const getCurrentDateTime = (): string => {
@@ -438,3 +454,4 @@ const CartonInfo: React.FC<{ masterCartons: string }> = ({ masterCartons }) => (
     <span className="text-gray-600 font-semibold">{masterCartons}</span>
   </div>
 );
+

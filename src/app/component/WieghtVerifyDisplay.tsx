@@ -1,8 +1,163 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
+import qz from "qz-tray";
 
-// Reusable InfoCard component
+// Serial port configuration for common scale types
+type Parity = "NONE" | "EVEN" | "ODD" | "MARK" | "SPACE";
+type FlowControl = "NONE" | "XONXOFF" | "RTSCTS";
+type DataBits = 5 | 6 | 7 | 8;
+type StopBits = 1 | 1.5 | 2;
+
+interface SerialPortConfig {
+  rx: {
+    start: string;
+    end: string;
+    width: number | undefined;
+  };
+  baudRate: number;
+  dataBits: DataBits;
+  stopBits: StopBits;
+  parity: Parity;
+  flowControl: FlowControl;
+}
+
+// Now define the configuration with proper types
+const SERIAL_CONFIG: SerialPortConfig = {
+  rx: {
+    start: "\x02", // STX - Start of Text
+    end: "\x0D", // CR - Carriage Return
+    width: 8, // Read 8 bytes at a time
+  },
+  baudRate: 9600,
+  dataBits: 8, // Most scales use 7 data bits
+  stopBits: 1,
+  parity: "EVEN", // Common for Mettler Toledo and similar scales
+  flowControl: "NONE",
+} as const;
+// Initialize QZ Tray connection
+async function initializeQZ() {
+  if (await qz.websocket.isActive()) {
+    return true;
+  }
+
+  try {
+    await qz.websocket.connect({
+      retries: 2,
+      delay: 1000,
+    });
+
+    // Replace with your actual certificate
+    await qz.security.setCertificatePromise((resolve) => {
+      resolve(
+        "-----BEGIN CERTIFICATE-----\nYOUR_CERTIFICATE_HERE\n-----END CERTIFICATE-----"
+      );
+    });
+
+    // Simple signature implementation - replace with your actual signing logic
+    await qz.security.setSignaturePromise((toSign) => {
+      return Promise.resolve("");
+    });
+
+    return true;
+  } catch (error) {
+    console.error("QZ Tray initialization error:", error);
+    return false;
+  }
+}
+
+// Function to read weight from serial port
+async function getWeightFromScale(portName: string): Promise<number> {
+  try {
+    // Close port if already open
+    try {
+      await qz.serial.closePort(portName);
+    } catch {
+      // Ignore close errors
+    }
+
+    // Open port with configuration
+    await qz.serial.openPort(portName, SERIAL_CONFIG);
+
+    // Read weight with timeout
+    const weight = await new Promise<number>((resolve, reject) => {
+      const timeout = setTimeout(() => {
+        cleanup();
+        reject(new Error("Weight reading timeout"));
+      }, 5000);
+
+      const cleanup = () => {
+        clearTimeout(timeout);
+        qz.serial.setSerialCallbacks([]);
+      };
+
+      // Set up data callback
+      qz.serial.setSerialCallbacks((response) => {
+        if (response.type === "ERROR") {
+          cleanup();
+          reject(new Error(response.exception));
+          return;
+        }
+
+        if (response.portName === portName) {
+          const weight = parseWeight(response.output);
+          if (weight !== null) {
+            cleanup();
+            resolve(weight);
+          }
+        }
+      });
+
+      // Send command to request weight
+      qz.serial.sendData(portName, "W\r\n").catch((err) => {
+        cleanup();
+        reject(err);
+      });
+    });
+
+    return weight;
+  } finally {
+    // Always try to close the port
+    try {
+      await qz.serial.closePort(portName);
+    } catch {
+      // Ignore close errors
+    }
+  }
+}
+
+// Parse weight from scale response
+function parseWeight(data: string): number | null {
+  // Remove non-printable characters and trim
+  const cleanData = data.replace(/[\x00-\x1F\x7F-\x9F]/g, "").trim();
+  console.log("Cleaned scale data:", cleanData);
+
+  // Common weight patterns
+  const patterns = [
+    /ST,GS,([0-9.]+)/, // Stable Gross weight
+    /ST,NT,([0-9.]+)/, // Stable Net weight
+    /US,GS,([0-9.]+)/, // Unstable Gross weight
+    /US,NT,([0-9.]+)/, // Unstable Net weight
+    /W[ST],([0-9.]+)/, // Weight with stability indicator
+    /^([0-9.]+)$/, // Simple number
+    /([0-9.]+)kg/, // Weight with kg unit
+    /([+-]?[0-9]*\.?[0-9]+)/, // Any decimal number
+  ];
+
+  for (const pattern of patterns) {
+    const match = cleanData.match(pattern);
+    if (match && match[1]) {
+      const weight = parseFloat(match[1]);
+      if (!isNaN(weight)) {
+        return weight;
+      }
+    }
+  }
+
+  return null;
+}
+
+// InfoCard component
 function InfoCard({
   label,
   value,
@@ -18,86 +173,81 @@ function InfoCard({
   );
 }
 
-type WeightVerifyDisplayProps = {
+// Component props interface
+interface WeightVerifyDisplayProps {
   header: {
     name?: string;
     order_line_id?: number;
     std_gross_weight?: number;
   };
+  portName?: string;
   onWeightVerified?: (
     status: "" | "acceptable" | "rejected",
     weight: number
   ) => void;
-};
-
-// Function to fetch weight from local API with timeout
-async function fetchLocalWeight(timeout = 5000): Promise<number | null> {
-  try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), timeout);
-
-    const response = await fetch("http://localhost:3000/api/weight", {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      signal: controller.signal,
-    });
-
-    clearTimeout(timeoutId);
-
-    if (!response.ok) {
-      throw new Error("Failed to fetch weight");
-    }
-
-    const data = await response.json();
-    return parseFloat(data.weight);
-  } catch (error) {
-    if (error instanceof Error) {
-      if (error.name === "AbortError") {
-        throw new Error("Request timeout");
-      }
-    }
-    throw error;
-  }
 }
 
+// Main component
 function WeightVerifyDisplay({
   header,
+  portName = "COM1",
   onWeightVerified,
 }: Readonly<WeightVerifyDisplayProps>) {
   const [currentWeight, setCurrentWeight] = useState<number | null>(null);
-  const [status, setStatus] = useState("pending");
-
+  const [status, setStatus] = useState<
+    "pending" | "acceptable" | "rejected" | "offline"
+  >("pending");
   const [error, setError] = useState<string | null>(null);
   const [isPolling, setIsPolling] = useState(true);
   const [retryCount, setRetryCount] = useState(0);
   const [lastSuccessfulRead, setLastSuccessfulRead] = useState<Date | null>(
     null
   );
+  const [isQzReady, setIsQzReady] = useState(false);
 
-  // Define acceptable weight range
   const MIN_WEIGHT = 5;
   const MAX_WEIGHT = header.std_gross_weight
     ? header.std_gross_weight + 0.5
     : 10;
   const MAX_RETRIES = 3;
-  const RETRY_INTERVAL = 5000; // 5 seconds between retries
 
-  const handleWeightFetch = useCallback(async () => {
-    try {
-      const weight = await fetchLocalWeight();
-
-      if (weight === null) {
-        throw new Error("Invalid weight reading");
+  // Initialize QZ Tray
+  useEffect(() => {
+    const init = async () => {
+      const connected = await initializeQZ();
+      setIsQzReady(connected);
+      if (!connected) {
+        setError(
+          "Failed to connect to QZ Tray. Please ensure it's installed and running."
+        );
+        setStatus("offline");
+        setIsPolling(false);
       }
+    };
+
+    init();
+
+    return () => {
+      qz.websocket.disconnect();
+    };
+  }, []);
+
+  // Weight reading handler
+  const handleWeightFetch = useCallback(async () => {
+    if (!isQzReady) {
+      setError("QZ Tray not connected");
+      setStatus("offline");
+      return;
+    }
+
+    try {
+      const weight = await getWeightFromScale(portName);
 
       setCurrentWeight(weight);
       setLastSuccessfulRead(new Date());
       setRetryCount(0);
       setError(null);
 
-      // Determine status based on weight range
       const newStatus =
         weight >= MIN_WEIGHT && weight <= MAX_WEIGHT
           ? "acceptable"
@@ -105,11 +255,9 @@ function WeightVerifyDisplay({
 
       setStatus(newStatus);
       onWeightVerified?.(newStatus, weight);
-
-      // Reset polling if it was stopped
-      setIsPolling(true);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Unknown error";
+      console.error("Weight reading error:", err);
 
       if (retryCount >= MAX_RETRIES) {
         setError(`Connection lost: ${errorMessage}`);
@@ -121,24 +269,38 @@ function WeightVerifyDisplay({
       setRetryCount((prev) => prev + 1);
       setError(`Retry ${retryCount + 1}/${MAX_RETRIES}: ${errorMessage}`);
     }
-  }, [retryCount, onWeightVerified]);
+  }, [
+    isQzReady,
+    portName,
+    retryCount,
+    onWeightVerified,
+    MIN_WEIGHT,
+    MAX_WEIGHT,
+  ]);
 
   // Manual retry handler
-  const handleRetry = useCallback(() => {
+  const handleRetry = useCallback(async () => {
     setRetryCount(0);
     setError(null);
     setStatus("pending");
-    setIsPolling(true);
+
+    const connected = await initializeQZ();
+    setIsQzReady(connected);
+
+    if (connected) {
+      setIsPolling(true);
+    } else {
+      setError("Failed to reconnect to QZ Tray");
+      setStatus("offline");
+    }
   }, []);
 
+  // Polling effect
   useEffect(() => {
     let pollInterval: NodeJS.Timeout | null = null;
 
-    if (isPolling) {
-      // Initial fetch
+    if (isPolling && isQzReady) {
       handleWeightFetch();
-
-      // Set up polling
       pollInterval = setInterval(handleWeightFetch, 1000);
     }
 
@@ -147,8 +309,9 @@ function WeightVerifyDisplay({
         clearInterval(pollInterval);
       }
     };
-  }, [isPolling, handleWeightFetch]);
+  }, [isPolling, handleWeightFetch, isQzReady]);
 
+  // Status styling
   const statusClass = {
     acceptable: "bg-green-500",
     rejected: "bg-red-500",

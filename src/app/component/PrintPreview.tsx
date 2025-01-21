@@ -1,12 +1,13 @@
 "use client";
 
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback, useEffect, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Printer, RefreshCcw } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import { format } from "date-fns";
 import { weightService } from "@/app/_services/weightService";
-
+import AddedLineTable from "../component/AddedLineTable";
 // Types and Interfaces
 type Status = "acceptable" | "rejected" | "";
 type WeightLineStatus = "valid" | "invalid" | "" | "draft";
@@ -58,11 +59,9 @@ const getCurrentDateTime = (): string => {
   const day = String(now.getDate()).padStart(2, "0");
   const month = now.toLocaleString("en-US", { month: "short" });
   const year = now.getFullYear();
-  const hours = now.getHours();
-  const minutes = String(now.getMinutes()).padStart(2, "0");
-  const period = hours >= 12 ? "pm" : "am";
-  const formatHours = hours % 12 === 0 ? 12 : hours % 12;
-  return `${day}-${month}-${year} ${formatHours}:${minutes} ${period}`;
+  const time = now.toLocaleTimeString();
+
+  return `${day}-${month}-${year} ${time}`;
 };
 
 // Main Component
@@ -230,18 +229,16 @@ export const TeaLabel: React.FC<TeaLabelProps> = ({
               </div>
             </div>
             <div class="verification-box">
-              <div class="verification-number">${VERIFICATION_NUMBER}</div>
+              <div class="verification-number" style="font-weight: bold;">${VERIFICATION_NUMBER}</div>
               <div class="status-mark">
                 ${
                   data.status === "acceptable"
-                    ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" width="12mm" height="12mm" fill="black">
+                    ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" width="20mm" height="20mm" fill="black">
                       <path d="M438.6 105.4c12.5 12.5 12.5 32.8 0 45.3l-256 256c-12.5 12.5-32.8 12.5-45.3 0l-128-128c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0L160 338.7 393.4 105.4c12.5-12.5 32.8-12.5 45.3 0z"/>
                     </svg>`
-                    : data.status === "rejected"
-                    ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" width="12mm" height="12mm" fill="black">
+                    : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" width="18mm" height="18mm" fill="black">
                       <path d="M342.6 150.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L192 210.7 86.6 105.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L146.7 256 41.4 361.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L192 301.3 297.4 406.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L237.3 256 342.6 150.6z"/>
                     </svg>`
-                    : ""
                 }
               </div>
             </div>
@@ -299,13 +296,13 @@ export const TeaLabel: React.FC<TeaLabelProps> = ({
     try {
       validateData();
 
-      const weightLine: WeightLine = {
+      const weightLine = {
         gross_weight: data.grossWeight,
-        datetime: new Date().toISOString().slice(0, 19).replace("T", " "),
+        datetime: format(new Date(), "yyyy-MM-dd HH:mm:ss"),
         status: "invalid",
         remark: true,
       };
-
+      console.log(weightLine);
       await weightService.createWeightLine(data.id, weightLine);
       toast({
         title: "Success",

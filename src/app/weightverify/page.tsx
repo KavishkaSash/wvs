@@ -1,11 +1,13 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { TeaLabel } from "../component/PrintPreview";
 import ScrollableSection from "../component/CreatedHeadersCard";
 import WeightVerifyDisplay from "../component/WieghtVerifyDisplay";
-import AddedLineTable from "../component/AddedLineTable";
+
 import { WeightHeader } from "../_services/weightService";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import AddedLineTable from "../component/AddedLineTable";
 
 const Page = () => {
   const [selectedHeader, setSelectedHeader] = useState<WeightHeader | null>(
@@ -68,16 +70,13 @@ const Page = () => {
                 masterCartons: "",
                 status: verificationStatus || "",
                 isFormValid: false,
-               
               }}
             />
           </div>
 
           {/* Right half - Table */}
-          <div className="flex-1">
-            <div className="bg-white shadow">
-              <AddedLineTable id={selectedHeader?.id ?? 0} />
-            </div>
+          <div className="w-1/2">
+            <AddedLineTable id={selectedHeader?.id || 0} />
           </div>
         </div>
       </div>

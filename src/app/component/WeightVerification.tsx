@@ -11,7 +11,7 @@ interface FormData {
   productName: string;
   innerCount: string;
   netWeight: string;
-  grossWeight: string;
+  grossWeight: number;
   masterCartons: string;
   serialNumber: string;
   weight: string;
@@ -49,7 +49,7 @@ const WeightVerification: React.FC = () => {
     productName: "",
     innerCount: "",
     netWeight: "",
-    grossWeight: "",
+    grossWeight: 0,
     masterCartons: "",
     serialNumber: "",
     weight: "",
@@ -218,7 +218,7 @@ const WeightVerification: React.FC = () => {
                       type="number"
                       step="0.001"
                       name="grossWeight"
-                      value={formData.grossWeight}
+                      value={formData.grossWeight.toString()}
                       onChange={handleInputChange}
                       placeholder="Enter gross weight"
                     />
@@ -232,9 +232,9 @@ const WeightVerification: React.FC = () => {
           <TeaLabel
             data={{
               ...formData,
+              grossWeight: formData.grossWeight || 0,
               status,
               isFormValid: isFormValid(),
-              onPrint: handlePrint,
             }}
           />
         </div>

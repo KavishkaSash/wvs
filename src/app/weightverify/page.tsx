@@ -64,13 +64,11 @@ const Page = () => {
                 productName: selectedHeader?.name || "",
                 innerCount: "",
                 netWeight: currentWeight.toString(),
-                grossWeight: "",
+                grossWeight: selectedHeader?.std_gross_weight || 0,
                 masterCartons: "",
-                status: verificationStatus,
+                status: verificationStatus || "",
                 isFormValid: false,
-                onPrint: function (): void {
-                  throw new Error("Function not implemented.");
-                },
+               
               }}
             />
           </div>

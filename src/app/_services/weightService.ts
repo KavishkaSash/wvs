@@ -71,9 +71,6 @@ export const weightService = {
       datetime: string;
       status: string;
       remark: boolean;
-      inner_count: number;
-      net_weight: number;
-      index_no: number;
     }
   ): Promise<WeightLineResponse> {
     if (!headerId) {

@@ -1,3 +1,4 @@
+import { apiClient } from "@/lib/utils";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
@@ -14,24 +15,15 @@ export async function POST(request: NextRequest) {
     }
 
     const weightLineData = await request.json();
-
+    console.log(headerId);
     // Make the API call to your backend service
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/weight/headers/${headerId}/lines`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(weightLineData),
-      }
-    );
+    const response = await apiClient({
+      url: `/weight/headers/${headerId}/lines`,
+      method: "POST",
+      data: weightLineData,
+    });
 
-    if (!response.ok) {
-      throw new Error(`Backend API error: ${response.status}`);
-    }
-
-    const data = await response.json();
+    const data = response.data;
     return NextResponse.json(data);
   } catch (error) {
     console.error("Weight line creation error:", error);

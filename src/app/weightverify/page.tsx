@@ -1,22 +1,22 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
 
-import { TeaLabel } from "../component/PrintPreview";
-import ScrollableSection from "../component/CreatedHeadersCard";
-import WeightVerifyDisplay from "../component/WieghtVerifyDisplay";
+import { useEffect, useState } from "react";
+import { TeaLabel } from "../components/PrintPreview";
+import WeightVerifyDisplay from "../components/WieghtVerifyDisplay";
 
-import { WeightHeader } from "../_services/weightService";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import AddedLineTable from "../component/AddedLineTable";
+import AddedLineTable from "../components/AddedLineTable";
+import ScrollableSection from "../components/CreatedHeadersCard";
+import { WeightHeader } from "../types";
 
 const Page = () => {
   const [selectedHeader, setSelectedHeader] = useState<WeightHeader | null>(
     null
   );
   const [verificationStatus, setVerificationStatus] = useState<
-    "" | "acceptable" | "rejected"
+    "" | "valid" | "invalid"
   >("");
   const [currentWeight, setCurrentWeight] = useState(0);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   useEffect(() => {
     const storedData = localStorage.getItem("headerData");
@@ -30,53 +30,79 @@ const Page = () => {
   };
 
   const handleWeightVerified = (
-    status: "" | "acceptable" | "rejected",
+    status: "" | "valid" | "invalid",
     weight: number
   ) => {
     setVerificationStatus(status);
     setCurrentWeight(weight);
   };
 
+  const toggleSidebar = () => {
+    setIsSidebarCollapsed(!isSidebarCollapsed);
+  };
+
   return (
-    <div className="flex h-screen">
-      {/* Left Column */}
-      <div className=" flex flex-col gap-4 p-4 shadow-sm w-1/3">
-        <div className="flex-1 bg-gray-100 rounded-lg shadow-md p-4">
-          <ScrollableSection onCardClick={handleCardClick} />
-        </div>
+    <div className="flex h-screen bg-gray-100">
+      {/* Left Sidebar - Order List */}
+      <div
+        className={`transition-all duration-300 ${
+          isSidebarCollapsed ? "w-24" : "w-72"
+        }`}
+      >
+        <ScrollableSection
+          onCardClick={handleCardClick}
+          isCollapsed={isSidebarCollapsed}
+          onToggleCollapse={toggleSidebar}
+        />
       </div>
 
-      {/* Right Column */}
-      <div className="flex-1 flex flex-col">
-        {/* Top Section */}
-        <div className="flex-1 flex justify-center items-center border-b border-gray-300">
-          <WeightVerifyDisplay
-            header={selectedHeader || { name: undefined }}
-            onWeightVerified={handleWeightVerified}
-          />
-        </div>
-
-        {/* Bottom Section */}
-        <div className="flex w-full gap-4 items-start px-4">
-          {/* Left half - TeaLabel */}
-          <div className="flex-1">
-            <TeaLabel
-              data={{
-                id: selectedHeader?.id || 0,
-                productName: selectedHeader?.name || "",
-                innerCount: "",
-                netWeight: currentWeight.toString(),
-                grossWeight: selectedHeader?.std_gross_weight || 0,
-                masterCartons: "",
-                status: verificationStatus || "",
-                isFormValid: false,
+      {/* Main Content Area */}
+      <div className="flex-1 flex flex-col overflow-hidden">
+        {/* Top Section - Weight Verification and Tea Label */}
+        <div className="flex p-4 gap-4 bg-gray-50 border-b border-gray-200">
+          {/* Weight Verification Display */}
+          <div className="flex-1 bg-white rounded-lg shadow-sm p-4">
+            <WeightVerifyDisplay
+              header={{
+                product_id: selectedHeader?.product_id || "",
+                name: selectedHeader?.name,
+                order_line_id: selectedHeader?.order_line_id || 0,
+                std_gross_weight: selectedHeader?.std_gross_weight || 0,
+                job_no: selectedHeader?.job_no || 0,
               }}
+              onWeightVerified={handleWeightVerified}
             />
           </div>
 
-          {/* Right half - Table */}
-          <div className="w-1/2">
-            <AddedLineTable id={selectedHeader?.id || 0} />
+          {/* Tea Label */}
+          <div className="w-96 bg-white rounded-lg shadow-sm p-4">
+            <TeaLabel
+              data={{
+                id: selectedHeader?.id || 0,
+                contract_no: selectedHeader?.order_id || "",
+                productName: selectedHeader?.product_id || "",
+                innerCount: selectedHeader?.nos_inners || 0,
+                netWeight: currentWeight || 1,
+                grossWeight: selectedHeader?.std_gross_weight || 0,
+                masterCartons: selectedHeader?.nos_master_cartons || 0,
+                status: verificationStatus || "invalid",
+                line_serial: "",
+                isFormValid: false,
+                net_qty: selectedHeader?.net_qty || 0,
+                order_line_number: selectedHeader?.order_line_number || 0,
+                index_no: selectedHeader?.index_no || 0,
+                allow_print: selectedHeader?.allow_print || false,
+              }}
+            />
+          </div>
+        </div>
+
+        {/* Bottom Section - Added Line Table */}
+        <div className="flex-1 p-4 bg-gray-50 overflow-auto">
+          <div className="bg-white rounded-lg shadow-sm h-full">
+            <div className="p-4">
+              <AddedLineTable id={selectedHeader?.id ?? 0} />
+            </div>
           </div>
         </div>
       </div>

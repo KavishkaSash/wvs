@@ -3,13 +3,11 @@ import { apiClient } from "@/lib/utils";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-export async function POST(request: NextRequest) {
-  const data = await request.json();
+export async function GET(request: NextRequest) {
   try {
     const response = await apiClient({
-      url: "/weight/headers",
-      method: "POST",
-      data: data,
+      url: "/weight/lines/filter?status=invalid",
+      method: "GET",
     });
 
     return NextResponse.json(response.data);

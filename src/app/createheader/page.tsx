@@ -1,7 +1,7 @@
 "use client";
 
 import { Suspense } from "react";
-import HeaderDetailsTable from "../component/HeaderDetailsTable";
+import HeaderDetailsTable from "../components/HeaderDetailsTable";
 
 interface Props {}
 

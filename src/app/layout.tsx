@@ -1,21 +1,28 @@
-import type { Metadata } from "next";
+// layout.tsx
+import { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import Navbar from "./component/Navbar";
+import { Toaster } from "@/components/ui/toaster";
+import ClientLayout from "./components/ClientLayout";
+import { AuthProvider } from "./context/AuthContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
+  display: "swap",
 });
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
   title: "WVS",
   description: "Developed by TT(PVT)",
+  viewport: "width=device-width, initial-scale=1",
+  themeColor: "#ffffff",
 };
 
 export default function RootLayout({
@@ -25,17 +32,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="h-full">
-      <head />
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased h-full`}
+        className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased min-h-full flex flex-col`}
       >
-        {/* Layout Container */}
-        <div className="flex flex-col min-h-screen">
-          {/* Navbar */}
-          <Navbar />
-          {/* Main Content */}
-          <main className="flex-1">{children}</main>
-        </div>
+        <ClientLayout>
+          <AuthProvider>{children}</AuthProvider>
+        </ClientLayout>
+        <Toaster />
       </body>
     </html>
   );
